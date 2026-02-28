@@ -1,9 +1,17 @@
+using System;
+using System.Collections.Generic;
+using System.Drawing;
+using System.Globalization;
+using System.IO;
+using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
+using System.Threading;
+using System.Windows.Forms;
+using System.ComponentModel;
 
- namespace compiles_lab_1
+namespace compiles_lab_1
 {
-
     public partial class Form1 : Form
     {
         [DllImport("user32.dll")]
@@ -30,7 +38,7 @@ using System.Text;
             public ToolStripButton Button;
         }
 
-        private List<DocumentTab> documents = new();
+        private readonly List<DocumentTab> documents = new();
         private DocumentTab currentDocument;
         private bool _internalTextUpdate = false;
 
@@ -38,6 +46,68 @@ using System.Text;
         {
             InitializeComponent();
             fileManager = new FileManager();
+            ReattachEvents();
+         
+        }
+
+        private void SetLanguage(string culture)
+        {
+            Thread.CurrentThread.CurrentUICulture = new CultureInfo(culture);
+            var res = new ComponentResourceManager(typeof(Form1));
+            SuspendLayout();
+            ApplyResourcesRecursive(this, res);
+            ResumeLayout(true);
+
+            foreach (var doc in documents)
+                if (doc.Button != null)
+                    doc.Button.Text = doc.Title;
+
+            if (currentDocument != null && currentDocument.Button != null)
+            {
+                foreach (ToolStripButton b in tabsStrip.Items)
+                    b.BackColor = SystemColors.Control;
+                currentDocument.Button.BackColor = Color.LightGray;
+            }
+        }
+
+        private void ApplyResourcesRecursive(Control control, ComponentResourceManager res)
+        {
+            if (!string.IsNullOrEmpty(control.Name))
+                res.ApplyResources(control, control.Name);
+
+            if (control is MenuStrip ms)
+                foreach (ToolStripItem item in ms.Items)
+                    ApplyResourcesToolStripItem(item, res);
+
+            if (control is ToolStrip ts)
+                foreach (ToolStripItem item in ts.Items)
+                    ApplyResourcesToolStripItem(item, res);
+
+            foreach (Control child in control.Controls)
+                ApplyResourcesRecursive(child, res);
+        }
+
+        private void ApplyResourcesToolStripItem(ToolStripItem item, ComponentResourceManager res)
+        {
+            if (!string.IsNullOrEmpty(item.Name))
+                res.ApplyResources(item, item.Name);
+
+            if (item is ToolStripDropDownItem dd)
+                foreach (ToolStripItem sub in dd.DropDownItems)
+                    ApplyResourcesToolStripItem(sub, res);
+        }
+ 
+        private void ReattachEvents()
+        {
+            if (tabContextMenu.Items.Count == 0)
+                tabContextMenu.Items.Add(Strings.CloseTab);
+
+            TextSizeComboBox.Text = "9";
+            splitContainer1.Panel1.AllowDrop = true;
+            richTextBox1.AllowDrop = true;
+            
+            localizationMenu.DropDownItems.Add("English", null, (s, e) => SetLanguage("en"));
+            localizationMenu.DropDownItems.Add("Русский", null, (s, e) => SetLanguage("ru"));
 
             CreateToolStripMenuItem.Click += CreateFile;
             OpenToolStripMenuItem.Click += OpenFile;
@@ -61,25 +131,19 @@ using System.Text;
             toolStripButton10.Click += CopyText;
             toolStripButton9.Click += CutText;
             toolStripButton8.Click += PasteText;
- 
+
             richTextBox1.VScroll += (s, e) => { SyncScroll(); UpdateLineNumberWidth(); };
 
             FormClosing += Form1_FormClosing;
+
             TextSizeComboBox.SelectedIndexChanged += (s, e) =>
             {
                 if (float.TryParse(TextSizeComboBox.Text, out float size))
                     SetEditorFontSize(size);
             };
 
-            tabContextMenu.Items.Add("Закрыть вкладку");
-            TextSizeComboBox.Text = "9";
-
-            splitContainer1.Panel1.AllowDrop = true;
             splitContainer1.Panel1.DragEnter += File_DragEnter;
             splitContainer1.Panel1.DragDrop += File_DragDrop;
-            richTextBox1.AllowDrop = true;
-            richTextBox1.DragEnter += File_DragEnter;
-            richTextBox1.DragDrop += File_DragDrop;
 
             tabContextMenu.Items[0].Click += (s, e) =>
             {
@@ -89,27 +153,20 @@ using System.Text;
 
             richTextBox1.TextChanged += (s, e) =>
             {
-               
-                      
-            if (_internalTextUpdate) return;
+                if (_internalTextUpdate) return;
+
                 int caretIndex = richTextBox1.SelectionStart;
                 Point caretPos = richTextBox1.GetPositionFromCharIndex(caretIndex);
 
                 if (caretPos.Y > richTextBox1.ClientSize.Height - richTextBox1.Font.Height * 2)
-                {
                     richTextBox1.ScrollToCaret();
-                }
 
                 if (currentDocument != null)
                     currentDocument.IsModified = true;
 
                 UpdateLineNumbers();
                 SyncScroll();
-        
-
             };
-
-
         }
 
         private void CreateFile(object sender, EventArgs e)
@@ -118,14 +175,13 @@ using System.Text;
 
             var doc = new DocumentTab
             {
-                Title = "Новый документ",
+                Title = Strings.NewDocument,
                 FilePath = null,
                 Text = "",
                 IsModified = false
             };
 
             var btn = new ToolStripButton(doc.Title);
-            btn.CheckOnClick = false;
             btn.MouseUp += TabMouseUp;
             btn.Click += (s, ev) => SwitchToDocument(doc);
 
@@ -135,7 +191,7 @@ using System.Text;
             richTextBox1.Enabled = true;
             SwitchToDocument(doc);
         }
- 
+
         private void TabMouseUp(object sender, MouseEventArgs e)
         {
             if (e.Button == MouseButtons.Right)
@@ -167,7 +223,6 @@ using System.Text;
 
             doc.Button.BackColor = Color.LightGray;
         }
-
 
         private void OpenFile(object sender, EventArgs e)
         {
@@ -207,23 +262,15 @@ using System.Text;
             SwitchToDocument(doc);
         }
 
-
         private bool CanCreateNewDocument()
         {
             if (documents.Count >= 14)
             {
-                MessageBox.Show(
-                    "Достигнуто максимальное количество открытых файлов.",
-                    "Ограничение",
-                    MessageBoxButtons.OK,
-                    MessageBoxIcon.Warning);
-
+                MessageBox.Show(Strings.MaxFiles, Strings.Limit, MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 return false;
             }
-
             return true;
         }
-
 
         private void SaveFile(object sender, EventArgs e)
         {
@@ -258,16 +305,12 @@ using System.Text;
                 currentDocument.IsModified = false;
             }
         }
- 
+
         private void CloseDocument(DocumentTab doc)
         {
             if (doc.IsModified)
             {
-                var result = MessageBox.Show(
-                    "Сохранить изменения?",
-                    "Закрытие документа",
-                    MessageBoxButtons.YesNoCancel,
-                    MessageBoxIcon.Question);
+                var result = MessageBox.Show(Strings.SaveChanges, Strings.CloseDocument, MessageBoxButtons.YesNoCancel, MessageBoxIcon.Question);
 
                 if (result == DialogResult.Cancel)
                     return;
@@ -294,11 +337,7 @@ using System.Text;
 
         private void Form1_FormClosing(object sender, FormClosingEventArgs e)
         {
-            var result = MessageBox.Show(
-                "Вы действительно хотите выйти?",
-                "Выход",
-                MessageBoxButtons.YesNo,
-                MessageBoxIcon.Question);
+            var result = MessageBox.Show(Strings.ExitConfirm, Strings.Exit, MessageBoxButtons.YesNo, MessageBoxIcon.Question);
 
             if (result == DialogResult.No)
             {
@@ -311,11 +350,7 @@ using System.Text;
                 if (!doc.IsModified)
                     continue;
 
-                var r = MessageBox.Show(
-                    $"Сохранить изменения в \"{doc.Title}\"?",
-                    "Сохранение",
-                    MessageBoxButtons.YesNoCancel,
-                    MessageBoxIcon.Question);
+                var r = MessageBox.Show($"{Strings.SaveChangesIn} \"{doc.Title}\"?", Strings.Saving, MessageBoxButtons.YesNoCancel, MessageBoxIcon.Question);
 
                 if (r == DialogResult.Cancel)
                 {
@@ -340,7 +375,6 @@ using System.Text;
                 sb.AppendLine(i.ToString());
 
             lineNumberBox.Text = sb.ToString();
-
             UpdateLineNumberWidth();
         }
 
@@ -348,23 +382,17 @@ using System.Text;
         {
             int lineCount = Math.Max(1, richTextBox1.Lines.Length);
             string maxNumber = lineCount.ToString();
-
             int width = TextRenderer.MeasureText(maxNumber, lineNumberBox.Font).Width + 10;
-
             splitContainerLines.SplitterDistance = width;
         }
-
-
 
         private void SetEditorFontSize(float size)
         {
             richTextBox1.Font = new Font(richTextBox1.Font.FontFamily, size);
             richTextBox2.Font = new Font(richTextBox2.Font.FontFamily, size);
-
             lineNumberBox.Font = new Font(richTextBox1.Font.FontFamily, size);
             UpdateLineNumberWidth();
         }
-
 
         private void File_DragEnter(object sender, DragEventArgs e)
         {
@@ -373,30 +401,6 @@ using System.Text;
             else
                 e.Effect = DragDropEffects.None;
         }
-
- 
-        private void SyncScroll()
-        {
- 
-            int pos = GetScrollPos(richTextBox1.Handle, SB_VERT);
-
-    
-            int firstVisibleChar = richTextBox1.GetCharIndexFromPosition(new Point(1, 1));
-            int firstVisibleLine = richTextBox1.GetLineFromCharIndex(firstVisibleChar);
- 
-            int correctedPos = Math.Max(pos, firstVisibleLine);
- 
-            SetScrollPos(lineNumberBox.Handle, SB_VERT, correctedPos, true);
-
-            SendMessage(
-                lineNumberBox.Handle,
-                WM_VSCROLL,
-                (IntPtr)(correctedPos << 16 | SB_THUMBPOSITION),
-                IntPtr.Zero
-            );
-        }
- 
-
 
         private void File_DragDrop(object sender, DragEventArgs e)
         {
@@ -410,6 +414,22 @@ using System.Text;
             }
         }
 
+        private void SyncScroll()
+        {
+            int pos = GetScrollPos(richTextBox1.Handle, SB_VERT);
+            int firstVisibleChar = richTextBox1.GetCharIndexFromPosition(new Point(1, 1));
+            int firstVisibleLine = richTextBox1.GetLineFromCharIndex(firstVisibleChar);
+            int correctedPos = Math.Max(pos, firstVisibleLine);
+
+            SetScrollPos(lineNumberBox.Handle, SB_VERT, correctedPos, true);
+
+            SendMessage(
+                lineNumberBox.Handle,
+                WM_VSCROLL,
+                (IntPtr)(correctedPos << 16 | SB_THUMBPOSITION),
+                IntPtr.Zero
+            );
+        }
 
         private void UndoText(object sender, EventArgs e)
         {
