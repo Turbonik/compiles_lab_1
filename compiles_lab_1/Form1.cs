@@ -51,6 +51,8 @@ namespace compiles_lab_1
                     SetEditorFontSize(size);
             };
 
+            tabContextMenu.Items.Add("Закрыть вкладку");
+            TextSizeComboBox.Text = "9";
 
             tabContextMenu.Items[0].Click += (s, e) =>
             {
