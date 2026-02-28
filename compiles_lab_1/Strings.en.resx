@@ -117,7 +117,40 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <data name="String1" xml:space="preserve">
-    <value />
+  <data name="CloseDocument" xml:space="preserve">
+    <value> Close Document</value>
+  </data>
+  <data name="CloseTab" xml:space="preserve">
+    <value>Close Tab</value>
+  </data>
+  <data name="EngLang" xml:space="preserve">
+    <value>English</value>
+  </data>
+  <data name="Exit" xml:space="preserve">
+    <value>Exit</value>
+  </data>
+  <data name="ExitConfirm" xml:space="preserve">
+    <value>ExitConfirm</value>
+  </data>
+  <data name="Limit" xml:space="preserve">
+    <value>Limit</value>
+  </data>
+  <data name="MaxFiles" xml:space="preserve">
+    <value>MaxFiles</value>
+  </data>
+  <data name="NewDocument" xml:space="preserve">
+    <value>New Document</value>
+  </data>
+  <data name="RusLang" xml:space="preserve">
+    <value>Russian</value>
+  </data>
+  <data name="SaveChanges" xml:space="preserve">
+    <value>Save changes?</value>
+  </data>
+  <data name="SaveChangesIn" xml:space="preserve">
+    <value>Save changes in</value>
+  </data>
+  <data name="Saving" xml:space="preserve">
+    <value>Saving</value>
   </data>
 </root>
