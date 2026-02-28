@@ -45,6 +45,12 @@ namespace compiles_lab_1
             toolStripButton8.Click += PasteText;
 
             FormClosing += Form1_FormClosing;
+            TextSizeComboBox.SelectedIndexChanged += (s, e) =>
+            {
+                if (float.TryParse(TextSizeComboBox.Text, out float size))
+                    SetEditorFontSize(size);
+            };
+
 
             tabContextMenu.Items[0].Click += (s, e) =>
             {
@@ -260,6 +266,12 @@ namespace compiles_lab_1
                     SaveFile(null, null);
                 }
             }
+        }
+
+        private void SetEditorFontSize(float size)
+        {
+            richTextBox1.Font = new Font(richTextBox1.Font.FontFamily, size);
+            richTextBox2.Font = new Font(richTextBox2.Font.FontFamily, size);
         }
 
         private void UndoText(object sender, EventArgs e)
