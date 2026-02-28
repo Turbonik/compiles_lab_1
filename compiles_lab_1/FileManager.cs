@@ -2,48 +2,38 @@
 {
     public class FileManager
     {
-        public string CurrentFilePath { get; private set; }
-
-        public string OpenFile()
+        public string OpenFileDialogAndRead(out string path)
         {
             var dialog = new OpenFileDialog();
             dialog.Filter = "Текстовые файлы|*.txt|Все файлы|*.*";
 
             if (dialog.ShowDialog() == DialogResult.OK)
             {
-                CurrentFilePath = dialog.FileName;
-                return File.ReadAllText(CurrentFilePath);
+                path = dialog.FileName;
+                return File.ReadAllText(path);
             }
 
+            path = null;
             return null;
         }
 
-        public void SaveFile(string text)
+        public void SaveFile(string path, string text)
         {
-            if (string.IsNullOrEmpty(CurrentFilePath))
-            {
-                SaveFileAs(text);
-                return;
-            }
-
-            File.WriteAllText(CurrentFilePath, text);
+            File.WriteAllText(path, text);
         }
 
-        public void SaveFileAs(string text)
+        public string SaveFileDialogAndWrite(string text)
         {
             var dialog = new SaveFileDialog();
             dialog.Filter = "Текстовые файлы|*.txt|Все файлы|*.*";
 
             if (dialog.ShowDialog() == DialogResult.OK)
             {
-                CurrentFilePath = dialog.FileName;
-                File.WriteAllText(CurrentFilePath, text);
+                File.WriteAllText(dialog.FileName, text);
+                return dialog.FileName;
             }
-        }
 
-        public void CreateNew()
-        {
-            CurrentFilePath = null;
+            return null;
         }
     }
 }
