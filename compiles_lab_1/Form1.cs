@@ -1,3 +1,5 @@
+using System.Text;
+
 namespace compiles_lab_1
 {
     public partial class Form1 : Form
@@ -15,6 +17,7 @@ namespace compiles_lab_1
 
         private List<DocumentTab> documents = new();
         private DocumentTab currentDocument;
+        private bool _internalTextUpdate = false;
 
         public Form1()
         {
@@ -44,6 +47,9 @@ namespace compiles_lab_1
             toolStripButton9.Click += CutText;
             toolStripButton8.Click += PasteText;
 
+            richTextBox1.TextChanged += (s, e) => UpdateLineNumbers();
+            richTextBox1.VScroll += (s, e) => SyncScroll();
+
             FormClosing += Form1_FormClosing;
             TextSizeComboBox.SelectedIndexChanged += (s, e) =>
             {
@@ -54,6 +60,13 @@ namespace compiles_lab_1
             tabContextMenu.Items.Add("Закрыть вкладку");
             TextSizeComboBox.Text = "9";
 
+            splitContainer1.Panel1.AllowDrop = true;
+            splitContainer1.Panel1.DragEnter += File_DragEnter;
+            splitContainer1.Panel1.DragDrop += File_DragDrop;
+            richTextBox1.AllowDrop = true;
+            richTextBox1.DragEnter += File_DragEnter;
+            richTextBox1.DragDrop += File_DragDrop;
+
             tabContextMenu.Items[0].Click += (s, e) =>
             {
                 if (currentDocument != null)
@@ -62,11 +75,16 @@ namespace compiles_lab_1
 
             richTextBox1.TextChanged += (s, e) =>
             {
+                if (_internalTextUpdate) return;
                 if (currentDocument != null)
                     currentDocument.IsModified = true;
+
+                UpdateLineNumbers();
             };
+
+
         }
- 
+
         private void CreateFile(object sender, EventArgs e)
         {
             if (!CanCreateNewDocument()) return;
@@ -87,7 +105,7 @@ namespace compiles_lab_1
             doc.Button = btn;
             documents.Add(doc);
             tabsStrip.Items.Add(btn);
-
+            richTextBox1.Enabled = true;
             SwitchToDocument(doc);
         }
  
@@ -104,7 +122,7 @@ namespace compiles_lab_1
                 }
             }
         }
- 
+
         private void SwitchToDocument(DocumentTab doc)
         {
             if (currentDocument != null)
@@ -112,14 +130,17 @@ namespace compiles_lab_1
 
             currentDocument = doc;
 
+            _internalTextUpdate = true;
             richTextBox1.Text = doc.Text;
+            _internalTextUpdate = false;
 
             foreach (ToolStripButton b in tabsStrip.Items)
                 b.BackColor = SystemColors.Control;
 
             doc.Button.BackColor = Color.LightGray;
         }
- 
+
+
         private void OpenFile(object sender, EventArgs e)
         {
             if (!CanCreateNewDocument()) return;
@@ -128,6 +149,16 @@ namespace compiles_lab_1
             var text = fileManager.OpenFileDialogAndRead(out path);
             if (text == null)
                 return;
+
+            OpenFileFromPath(path);
+            richTextBox1.Enabled = true;
+        }
+
+        private void OpenFileFromPath(string path)
+        {
+            if (!CanCreateNewDocument()) return;
+
+            string text = File.ReadAllText(path);
 
             var doc = new DocumentTab
             {
@@ -147,6 +178,7 @@ namespace compiles_lab_1
 
             SwitchToDocument(doc);
         }
+
 
         private bool CanCreateNewDocument()
         {
@@ -228,6 +260,7 @@ namespace compiles_lab_1
             {
                 currentDocument = null;
                 richTextBox1.Clear();
+                richTextBox1.Enabled = false;
             }
         }
 
@@ -270,11 +303,52 @@ namespace compiles_lab_1
             }
         }
 
+        private void UpdateLineNumbers()
+        {
+            int lineCount = richTextBox1.Lines.Length;
+            var sb = new StringBuilder();
+
+            for (int i = 1; i <= lineCount; i++)
+                sb.AppendLine(i.ToString());
+
+            lineNumberBox.Text = sb.ToString();
+        }
+
         private void SetEditorFontSize(float size)
         {
             richTextBox1.Font = new Font(richTextBox1.Font.FontFamily, size);
             richTextBox2.Font = new Font(richTextBox2.Font.FontFamily, size);
         }
+
+        private void File_DragEnter(object sender, DragEventArgs e)
+        {
+            if (e.Data.GetDataPresent(DataFormats.FileDrop))
+                e.Effect = DragDropEffects.Copy;
+            else
+                e.Effect = DragDropEffects.None;
+        }
+
+        private void SyncScroll()
+        {
+            int firstLine = richTextBox1.GetLineFromCharIndex(
+                richTextBox1.GetCharIndexFromPosition(new Point(0, 0)));
+
+            lineNumberBox.SelectionStart = lineNumberBox.GetFirstCharIndexFromLine(firstLine);
+            lineNumberBox.ScrollToCaret();
+        }
+
+        private void File_DragDrop(object sender, DragEventArgs e)
+        {
+            string[] files = (string[])e.Data.GetData(DataFormats.FileDrop);
+
+            if (files.Length > 0)
+            {
+                string path = files[0];
+                OpenFileFromPath(path);
+                richTextBox1.Enabled = true;
+            }
+        }
+
 
         private void UndoText(object sender, EventArgs e)
         {

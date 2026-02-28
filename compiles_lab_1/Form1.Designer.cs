@@ -68,7 +68,20 @@ namespace compiles_lab_1
             tabContextMenu = new ContextMenuStrip(components);
             splitContainer1 = new SplitContainer();
             richTextBox1 = new RichTextBox();
+  
+
+            splitContainer1.Panel1.Controls.Clear();
+            splitContainer1.Panel1.Controls.Add(splitContainerLines);
+
+            tabControlResults = new TabControl();
+            tabPageResults = new TabPage();
             richTextBox2 = new RichTextBox();
+            tabPageErrors = new TabPage();
+            dataGridViewErrors = new DataGridView();
+            dataGridViewTextBoxColumn1 = new DataGridViewTextBoxColumn();
+            dataGridViewTextBoxColumn2 = new DataGridViewTextBoxColumn();
+            dataGridViewTextBoxColumn3 = new DataGridViewTextBoxColumn();
+            dataGridViewTextBoxColumn4 = new DataGridViewTextBoxColumn();
             tableLayoutPanelMain = new TableLayoutPanel();
             menuStrip1.SuspendLayout();
             toolStrip1.SuspendLayout();
@@ -76,6 +89,34 @@ namespace compiles_lab_1
             splitContainer1.Panel1.SuspendLayout();
             splitContainer1.Panel2.SuspendLayout();
             splitContainer1.SuspendLayout();
+            splitContainerLines = new SplitContainer();
+            splitContainerLines.Dock = DockStyle.Fill;
+            splitContainerLines.Orientation = Orientation.Vertical;
+            splitContainerLines.SplitterWidth = 3;
+            splitContainerLines.FixedPanel = FixedPanel.Panel1;
+            splitContainerLines.IsSplitterFixed = true;
+            splitContainerLines.Panel1MinSize = 40;
+            splitContainerLines.SplitterDistance = 40;
+
+            lineNumberBox = new RichTextBox();
+            lineNumberBox.Dock = DockStyle.Fill;
+            lineNumberBox.ReadOnly = true;
+            lineNumberBox.ScrollBars = RichTextBoxScrollBars.None;
+            lineNumberBox.BackColor = Color.LightGray;
+            lineNumberBox.ForeColor = Color.Black;
+            lineNumberBox.Font = richTextBox1.Font;
+            lineNumberBox.Enabled = false;
+
+            splitContainerLines.Panel1.Controls.Add(lineNumberBox);
+            splitContainerLines.Panel2.Controls.Add(richTextBox1);
+
+            splitContainer1.Panel1.Controls.Clear();
+            splitContainer1.Panel1.Controls.Add(splitContainerLines);
+
+            tabControlResults.SuspendLayout();
+            tabPageResults.SuspendLayout();
+            tabPageErrors.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)dataGridViewErrors).BeginInit();
             tableLayoutPanelMain.SuspendLayout();
             SuspendLayout();
             // 
@@ -85,7 +126,7 @@ namespace compiles_lab_1
             menuStrip1.Items.AddRange(new ToolStripItem[] { fileMenu, editMenu, textMenu, runMenu, helpMenu, localizationMenu, viewMenu });
             menuStrip1.Location = new Point(0, 0);
             menuStrip1.Name = "menuStrip1";
-            menuStrip1.Size = new Size(582, 28);
+            menuStrip1.Size = new Size(800, 28);
             menuStrip1.TabIndex = 0;
             // 
             // fileMenu
@@ -265,7 +306,7 @@ namespace compiles_lab_1
             // 
             TextSizeMenuItem.DropDownItems.AddRange(new ToolStripItem[] { TextSizeComboBox });
             TextSizeMenuItem.Name = "TextSizeMenuItem";
-            TextSizeMenuItem.Size = new Size(224, 26);
+            TextSizeMenuItem.Size = new Size(189, 26);
             TextSizeMenuItem.Text = "Размер текста";
             // 
             // TextSizeComboBox
@@ -273,7 +314,7 @@ namespace compiles_lab_1
             TextSizeComboBox.DropDownStyle = ComboBoxStyle.DropDownList;
             TextSizeComboBox.Items.AddRange(new object[] { "8", "9", "10", "11", "12", "14", "16", "18", "20", "22", "24", "26", "28", "36", "48", "72" });
             TextSizeComboBox.Name = "TextSizeComboBox";
-            TextSizeComboBox.Size = new Size(80, 28);
+            TextSizeComboBox.Size = new Size(121, 28);
             // 
             // toolStrip1
             // 
@@ -282,11 +323,13 @@ namespace compiles_lab_1
             toolStrip1.Items.AddRange(new ToolStripItem[] { toolStripButton2, toolStripButton3, toolStripButton4, toolStripButton5, toolStripButton11, toolStripButton10, toolStripButton9, toolStripButton8, toolStripButton7, toolStripButton6, toolStripButton1 });
             toolStrip1.Location = new Point(0, 28);
             toolStrip1.Name = "toolStrip1";
-            toolStrip1.Size = new Size(582, 54);
+            toolStrip1.Size = new Size(800, 54);
             toolStrip1.TabIndex = 1;
             // 
             // toolStripButton2
             // 
+            toolStripButton2.AccessibleDescription = "";
+            toolStripButton2.BackgroundImageLayout = ImageLayout.None;
             toolStripButton2.Image = (Image)resources.GetObject("toolStripButton2.Image");
             toolStripButton2.ImageScaling = ToolStripItemImageScaling.None;
             toolStripButton2.Name = "toolStripButton2";
@@ -295,6 +338,8 @@ namespace compiles_lab_1
             // 
             // toolStripButton3
             // 
+            toolStripButton3.AccessibleDescription = "";
+            toolStripButton3.BackgroundImageLayout = ImageLayout.None;
             toolStripButton3.Image = (Image)resources.GetObject("toolStripButton3.Image");
             toolStripButton3.ImageScaling = ToolStripItemImageScaling.None;
             toolStripButton3.Name = "toolStripButton3";
@@ -303,6 +348,8 @@ namespace compiles_lab_1
             // 
             // toolStripButton4
             // 
+            toolStripButton4.AccessibleDescription = "";
+            toolStripButton4.BackgroundImageLayout = ImageLayout.None;
             toolStripButton4.Image = (Image)resources.GetObject("toolStripButton4.Image");
             toolStripButton4.ImageScaling = ToolStripItemImageScaling.None;
             toolStripButton4.Name = "toolStripButton4";
@@ -311,6 +358,8 @@ namespace compiles_lab_1
             // 
             // toolStripButton5
             // 
+            toolStripButton5.AccessibleDescription = "";
+            toolStripButton5.BackgroundImageLayout = ImageLayout.None;
             toolStripButton5.Image = (Image)resources.GetObject("toolStripButton5.Image");
             toolStripButton5.ImageScaling = ToolStripItemImageScaling.None;
             toolStripButton5.Name = "toolStripButton5";
@@ -319,6 +368,8 @@ namespace compiles_lab_1
             // 
             // toolStripButton11
             // 
+            toolStripButton11.AccessibleDescription = "";
+            toolStripButton11.BackgroundImageLayout = ImageLayout.None;
             toolStripButton11.Image = (Image)resources.GetObject("toolStripButton11.Image");
             toolStripButton11.ImageScaling = ToolStripItemImageScaling.None;
             toolStripButton11.Name = "toolStripButton11";
@@ -327,6 +378,8 @@ namespace compiles_lab_1
             // 
             // toolStripButton10
             // 
+            toolStripButton10.AccessibleDescription = "";
+            toolStripButton10.BackgroundImageLayout = ImageLayout.None;
             toolStripButton10.Image = (Image)resources.GetObject("toolStripButton10.Image");
             toolStripButton10.ImageScaling = ToolStripItemImageScaling.None;
             toolStripButton10.Name = "toolStripButton10";
@@ -335,6 +388,8 @@ namespace compiles_lab_1
             // 
             // toolStripButton9
             // 
+            toolStripButton9.AccessibleDescription = "";
+            toolStripButton9.BackgroundImageLayout = ImageLayout.None;
             toolStripButton9.Image = (Image)resources.GetObject("toolStripButton9.Image");
             toolStripButton9.ImageScaling = ToolStripItemImageScaling.None;
             toolStripButton9.Name = "toolStripButton9";
@@ -343,6 +398,8 @@ namespace compiles_lab_1
             // 
             // toolStripButton8
             // 
+            toolStripButton8.AccessibleDescription = "";
+            toolStripButton8.BackgroundImageLayout = ImageLayout.None;
             toolStripButton8.Image = (Image)resources.GetObject("toolStripButton8.Image");
             toolStripButton8.ImageScaling = ToolStripItemImageScaling.None;
             toolStripButton8.Name = "toolStripButton8";
@@ -351,6 +408,8 @@ namespace compiles_lab_1
             // 
             // toolStripButton7
             // 
+            toolStripButton7.AccessibleDescription = "";
+            toolStripButton7.BackgroundImageLayout = ImageLayout.None;
             toolStripButton7.Image = (Image)resources.GetObject("toolStripButton7.Image");
             toolStripButton7.ImageScaling = ToolStripItemImageScaling.None;
             toolStripButton7.Name = "toolStripButton7";
@@ -359,6 +418,8 @@ namespace compiles_lab_1
             // 
             // toolStripButton6
             // 
+            toolStripButton6.AccessibleDescription = "";
+            toolStripButton6.BackgroundImageLayout = ImageLayout.None;
             toolStripButton6.Image = (Image)resources.GetObject("toolStripButton6.Image");
             toolStripButton6.ImageScaling = ToolStripItemImageScaling.None;
             toolStripButton6.Name = "toolStripButton6";
@@ -367,6 +428,8 @@ namespace compiles_lab_1
             // 
             // toolStripButton1
             // 
+            toolStripButton1.AccessibleDescription = "";
+            toolStripButton1.BackgroundImageLayout = ImageLayout.None;
             toolStripButton1.Image = (Image)resources.GetObject("toolStripButton1.Image");
             toolStripButton1.ImageScaling = ToolStripItemImageScaling.None;
             toolStripButton1.Name = "toolStripButton1";
@@ -381,7 +444,7 @@ namespace compiles_lab_1
             tabsStrip.LayoutStyle = ToolStripLayoutStyle.HorizontalStackWithOverflow;
             tabsStrip.Location = new Point(0, 82);
             tabsStrip.Name = "tabsStrip";
-            tabsStrip.Size = new Size(582, 30);
+            tabsStrip.Size = new Size(800, 30);
             tabsStrip.TabIndex = 2;
             // 
             // tabContextMenu
@@ -396,27 +459,44 @@ namespace compiles_lab_1
             splitContainer1.Location = new Point(3, 115);
             splitContainer1.Name = "splitContainer1";
             splitContainer1.Orientation = Orientation.Horizontal;
-            // 
-            // splitContainer1.Panel1
-            // 
-            splitContainer1.Panel1.Controls.Add(richTextBox1);
-            // 
+            //
             // splitContainer1.Panel2
             // 
-            splitContainer1.Panel2.Controls.Add(richTextBox2);
-            splitContainer1.Size = new Size(576, 235);
-            splitContainer1.SplitterDistance = 117;
+            splitContainer1.Panel2.Controls.Add(tabControlResults);
+            splitContainer1.Size = new Size(794, 382);
+            splitContainer1.SplitterDistance = 191;
             splitContainer1.SplitterWidth = 6;
             splitContainer1.TabIndex = 3;
             // 
             // richTextBox1
             // 
             richTextBox1.Dock = DockStyle.Fill;
+            richTextBox1.Enabled = false;
             richTextBox1.Location = new Point(0, 0);
             richTextBox1.Name = "richTextBox1";
-            richTextBox1.Size = new Size(576, 117);
+            richTextBox1.Size = new Size(794, 191);
             richTextBox1.TabIndex = 0;
             richTextBox1.Text = "";
+            // 
+            // tabControlResults
+            // 
+            tabControlResults.Controls.Add(tabPageResults);
+            tabControlResults.Controls.Add(tabPageErrors);
+            tabControlResults.Dock = DockStyle.Fill;
+            tabControlResults.Location = new Point(0, 0);
+            tabControlResults.Name = "tabControlResults";
+            tabControlResults.SelectedIndex = 0;
+            tabControlResults.Size = new Size(794, 185);
+            tabControlResults.TabIndex = 0;
+            // 
+            // tabPageResults
+            // 
+            tabPageResults.Controls.Add(richTextBox2);
+            tabPageResults.Location = new Point(4, 29);
+            tabPageResults.Name = "tabPageResults";
+            tabPageResults.Size = new Size(786, 152);
+            tabPageResults.TabIndex = 0;
+            tabPageResults.Text = "Результаты";
             // 
             // richTextBox2
             // 
@@ -424,9 +504,62 @@ namespace compiles_lab_1
             richTextBox2.Enabled = false;
             richTextBox2.Location = new Point(0, 0);
             richTextBox2.Name = "richTextBox2";
-            richTextBox2.Size = new Size(576, 112);
+            richTextBox2.Size = new Size(786, 152);
             richTextBox2.TabIndex = 0;
             richTextBox2.Text = "";
+            // 
+            // tabPageErrors
+            // 
+            tabPageErrors.Controls.Add(dataGridViewErrors);
+            tabPageErrors.Location = new Point(4, 29);
+            tabPageErrors.Name = "tabPageErrors";
+            tabPageErrors.Size = new Size(786, 152);
+            tabPageErrors.TabIndex = 1;
+            tabPageErrors.Text = "Ошибки";
+            // 
+            // dataGridViewErrors
+            // 
+            dataGridViewErrors.AllowUserToAddRows = false;
+            dataGridViewErrors.AllowUserToDeleteRows = false;
+            dataGridViewErrors.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
+            dataGridViewErrors.ColumnHeadersHeight = 29;
+            dataGridViewErrors.Columns.AddRange(new DataGridViewColumn[] { dataGridViewTextBoxColumn1, dataGridViewTextBoxColumn2, dataGridViewTextBoxColumn3, dataGridViewTextBoxColumn4 });
+            dataGridViewErrors.Dock = DockStyle.Fill;
+            dataGridViewErrors.Location = new Point(0, 0);
+            dataGridViewErrors.Name = "dataGridViewErrors";
+            dataGridViewErrors.ReadOnly = true;
+            dataGridViewErrors.RowHeadersVisible = false;
+            dataGridViewErrors.RowHeadersWidth = 51;
+            dataGridViewErrors.Size = new Size(786, 152);
+            dataGridViewErrors.TabIndex = 0;
+            // 
+            // dataGridViewTextBoxColumn1
+            // 
+            dataGridViewTextBoxColumn1.HeaderText = "FilePath";
+            dataGridViewTextBoxColumn1.MinimumWidth = 6;
+            dataGridViewTextBoxColumn1.Name = "dataGridViewTextBoxColumn1";
+            dataGridViewTextBoxColumn1.ReadOnly = true;
+            // 
+            // dataGridViewTextBoxColumn2
+            // 
+            dataGridViewTextBoxColumn2.HeaderText = "Line";
+            dataGridViewTextBoxColumn2.MinimumWidth = 6;
+            dataGridViewTextBoxColumn2.Name = "dataGridViewTextBoxColumn2";
+            dataGridViewTextBoxColumn2.ReadOnly = true;
+            // 
+            // dataGridViewTextBoxColumn3
+            // 
+            dataGridViewTextBoxColumn3.HeaderText = "Column";
+            dataGridViewTextBoxColumn3.MinimumWidth = 6;
+            dataGridViewTextBoxColumn3.Name = "dataGridViewTextBoxColumn3";
+            dataGridViewTextBoxColumn3.ReadOnly = true;
+            // 
+            // dataGridViewTextBoxColumn4
+            // 
+            dataGridViewTextBoxColumn4.HeaderText = "Message";
+            dataGridViewTextBoxColumn4.MinimumWidth = 6;
+            dataGridViewTextBoxColumn4.Name = "dataGridViewTextBoxColumn4";
+            dataGridViewTextBoxColumn4.ReadOnly = true;
             // 
             // tableLayoutPanelMain
             // 
@@ -444,12 +577,12 @@ namespace compiles_lab_1
             tableLayoutPanelMain.RowStyles.Add(new RowStyle());
             tableLayoutPanelMain.RowStyles.Add(new RowStyle());
             tableLayoutPanelMain.RowStyles.Add(new RowStyle(SizeType.Percent, 100F));
-            tableLayoutPanelMain.Size = new Size(582, 353);
+            tableLayoutPanelMain.Size = new Size(800, 500);
             tableLayoutPanelMain.TabIndex = 1;
             // 
             // Form1
             // 
-            ClientSize = new Size(582, 353);
+            ClientSize = new Size(800, 500);
             Controls.Add(tableLayoutPanelMain);
             Icon = (Icon)resources.GetObject("$this.Icon");
             MinimumSize = new Size(600, 400);
@@ -464,9 +597,15 @@ namespace compiles_lab_1
             splitContainer1.Panel2.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)splitContainer1).EndInit();
             splitContainer1.ResumeLayout(false);
+            tabControlResults.ResumeLayout(false);
+            tabPageResults.ResumeLayout(false);
+            tabPageErrors.ResumeLayout(false);
+            ((System.ComponentModel.ISupportInitialize)dataGridViewErrors).EndInit();
             tableLayoutPanelMain.ResumeLayout(false);
             tableLayoutPanelMain.PerformLayout();
             ResumeLayout(false);
+
+
         }
         #endregion
 
@@ -499,7 +638,14 @@ namespace compiles_lab_1
         private RichTextBox richTextBox1;
         private RichTextBox richTextBox2;
 
+        private TabControl tabControlResults;
+        private TabPage tabPageResults;
+        private TabPage tabPageErrors;
+        private DataGridView dataGridViewErrors;
+
         private TableLayoutPanel tableLayoutPanelMain;
+        private SplitContainer splitContainerLines;
+        private RichTextBox lineNumberBox;
 
         private ToolStripMenuItem CreateToolStripMenuItem;
         private ToolStripMenuItem OpenToolStripMenuItem;
@@ -528,5 +674,9 @@ namespace compiles_lab_1
 
         private ToolStripMenuItem TextSizeMenuItem;
         private ToolStripComboBox TextSizeComboBox;
+        private DataGridViewTextBoxColumn dataGridViewTextBoxColumn1;
+        private DataGridViewTextBoxColumn dataGridViewTextBoxColumn2;
+        private DataGridViewTextBoxColumn dataGridViewTextBoxColumn3;
+        private DataGridViewTextBoxColumn dataGridViewTextBoxColumn4;
     }
 }
