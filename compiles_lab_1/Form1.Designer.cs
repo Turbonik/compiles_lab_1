@@ -67,12 +67,9 @@ namespace compiles_lab_1
             tabsStrip = new ToolStrip();
             tabContextMenu = new ContextMenuStrip(components);
             splitContainer1 = new SplitContainer();
+            splitContainerLines = new SplitContainer();
+            lineNumberBox = new RichTextBox();
             richTextBox1 = new RichTextBox();
-  
-
-            splitContainer1.Panel1.Controls.Clear();
-            splitContainer1.Panel1.Controls.Add(splitContainerLines);
-
             tabControlResults = new TabControl();
             tabPageResults = new TabPage();
             richTextBox2 = new RichTextBox();
@@ -89,30 +86,10 @@ namespace compiles_lab_1
             splitContainer1.Panel1.SuspendLayout();
             splitContainer1.Panel2.SuspendLayout();
             splitContainer1.SuspendLayout();
-            splitContainerLines = new SplitContainer();
-            splitContainerLines.Dock = DockStyle.Fill;
-            splitContainerLines.Orientation = Orientation.Vertical;
-            splitContainerLines.SplitterWidth = 3;
-            splitContainerLines.FixedPanel = FixedPanel.Panel1;
-            splitContainerLines.IsSplitterFixed = true;
-            splitContainerLines.Panel1MinSize = 40;
-            splitContainerLines.SplitterDistance = 40;
-
-            lineNumberBox = new RichTextBox();
-            lineNumberBox.Dock = DockStyle.Fill;
-            lineNumberBox.ReadOnly = true;
-            lineNumberBox.ScrollBars = RichTextBoxScrollBars.None;
-            lineNumberBox.BackColor = Color.LightGray;
-            lineNumberBox.ForeColor = Color.Black;
-            lineNumberBox.Font = richTextBox1.Font;
-            lineNumberBox.Enabled = false;
-
-            splitContainerLines.Panel1.Controls.Add(lineNumberBox);
-            splitContainerLines.Panel2.Controls.Add(richTextBox1);
-
-            splitContainer1.Panel1.Controls.Clear();
-            splitContainer1.Panel1.Controls.Add(splitContainerLines);
-
+            ((System.ComponentModel.ISupportInitialize)splitContainerLines).BeginInit();
+            splitContainerLines.Panel1.SuspendLayout();
+            splitContainerLines.Panel2.SuspendLayout();
+            splitContainerLines.SuspendLayout();
             tabControlResults.SuspendLayout();
             tabPageResults.SuspendLayout();
             tabPageErrors.SuspendLayout();
@@ -459,7 +436,11 @@ namespace compiles_lab_1
             splitContainer1.Location = new Point(3, 115);
             splitContainer1.Name = "splitContainer1";
             splitContainer1.Orientation = Orientation.Horizontal;
-            //
+            // 
+            // splitContainer1.Panel1
+            // 
+            splitContainer1.Panel1.Controls.Add(splitContainerLines);
+            // 
             // splitContainer1.Panel2
             // 
             splitContainer1.Panel2.Controls.Add(tabControlResults);
@@ -468,13 +449,49 @@ namespace compiles_lab_1
             splitContainer1.SplitterWidth = 6;
             splitContainer1.TabIndex = 3;
             // 
+            // splitContainerLines
+            // 
+            splitContainerLines.Dock = DockStyle.Fill;
+            splitContainerLines.FixedPanel = FixedPanel.Panel1;
+            splitContainerLines.IsSplitterFixed = true;
+            splitContainerLines.Location = new Point(0, 0);
+            splitContainerLines.Name = "splitContainerLines";
+            // 
+            // splitContainerLines.Panel1
+            // 
+            splitContainerLines.Panel1.Controls.Add(lineNumberBox);
+            splitContainerLines.Panel1MinSize = 40;
+            // 
+            // splitContainerLines.Panel2
+            // 
+            splitContainerLines.Panel2.Controls.Add(richTextBox1);
+            splitContainerLines.Size = new Size(794, 191);
+            splitContainerLines.SplitterDistance = 40;
+            splitContainerLines.SplitterWidth = 3;
+            splitContainerLines.TabIndex = 0;
+            // 
+            // lineNumberBox
+            // 
+            lineNumberBox.BackColor = Color.LightGray;
+            lineNumberBox.Dock = DockStyle.Fill;
+            lineNumberBox.Enabled = false;
+            lineNumberBox.Font = new Font("Segoe UI", 9F);
+            lineNumberBox.ForeColor = Color.Black;
+            lineNumberBox.Location = new Point(0, 0);
+            lineNumberBox.Name = "lineNumberBox";
+            lineNumberBox.ReadOnly = true;
+            lineNumberBox.ScrollBars = RichTextBoxScrollBars.None;
+            lineNumberBox.Size = new Size(40, 191);
+            lineNumberBox.TabIndex = 0;
+            lineNumberBox.Text = "";
+            // 
             // richTextBox1
             // 
             richTextBox1.Dock = DockStyle.Fill;
             richTextBox1.Enabled = false;
             richTextBox1.Location = new Point(0, 0);
             richTextBox1.Name = "richTextBox1";
-            richTextBox1.Size = new Size(794, 191);
+            richTextBox1.Size = new Size(751, 191);
             richTextBox1.TabIndex = 0;
             richTextBox1.Text = "";
             // 
@@ -597,6 +614,10 @@ namespace compiles_lab_1
             splitContainer1.Panel2.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)splitContainer1).EndInit();
             splitContainer1.ResumeLayout(false);
+            splitContainerLines.Panel1.ResumeLayout(false);
+            splitContainerLines.Panel2.ResumeLayout(false);
+            ((System.ComponentModel.ISupportInitialize)splitContainerLines).EndInit();
+            splitContainerLines.ResumeLayout(false);
             tabControlResults.ResumeLayout(false);
             tabPageResults.ResumeLayout(false);
             tabPageErrors.ResumeLayout(false);

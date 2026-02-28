@@ -1,9 +1,24 @@
+using System.Runtime.InteropServices;
 using System.Text;
 
-namespace compiles_lab_1
+ namespace compiles_lab_1
 {
+
     public partial class Form1 : Form
     {
+        [DllImport("user32.dll")]
+        static extern int GetScrollPos(IntPtr hWnd, int nBar);
+
+        [DllImport("user32.dll")]
+        static extern int SetScrollPos(IntPtr hWnd, int nBar, int nPos, bool bRedraw);
+
+        [DllImport("user32.dll")]
+        static extern IntPtr SendMessage(IntPtr hWnd, int Msg, IntPtr wParam, IntPtr lParam);
+
+        const int SB_VERT = 1;
+        const int WM_VSCROLL = 0x115;
+        const int SB_THUMBPOSITION = 4;
+
         private FileManager fileManager;
 
         private class DocumentTab
@@ -46,9 +61,8 @@ namespace compiles_lab_1
             toolStripButton10.Click += CopyText;
             toolStripButton9.Click += CutText;
             toolStripButton8.Click += PasteText;
-
-            richTextBox1.TextChanged += (s, e) => UpdateLineNumbers();
-            richTextBox1.VScroll += (s, e) => SyncScroll();
+ 
+            richTextBox1.VScroll += (s, e) => { SyncScroll(); UpdateLineNumberWidth(); };
 
             FormClosing += Form1_FormClosing;
             TextSizeComboBox.SelectedIndexChanged += (s, e) =>
@@ -75,11 +89,24 @@ namespace compiles_lab_1
 
             richTextBox1.TextChanged += (s, e) =>
             {
-                if (_internalTextUpdate) return;
+               
+                      
+            if (_internalTextUpdate) return;
+                int caretIndex = richTextBox1.SelectionStart;
+                Point caretPos = richTextBox1.GetPositionFromCharIndex(caretIndex);
+
+                if (caretPos.Y > richTextBox1.ClientSize.Height - richTextBox1.Font.Height * 2)
+                {
+                    richTextBox1.ScrollToCaret();
+                }
+
                 if (currentDocument != null)
                     currentDocument.IsModified = true;
 
                 UpdateLineNumbers();
+                SyncScroll();
+        
+
             };
 
 
@@ -132,6 +159,7 @@ namespace compiles_lab_1
 
             _internalTextUpdate = true;
             richTextBox1.Text = doc.Text;
+            UpdateLineNumberWidth();
             _internalTextUpdate = false;
 
             foreach (ToolStripButton b in tabsStrip.Items)
@@ -312,13 +340,31 @@ namespace compiles_lab_1
                 sb.AppendLine(i.ToString());
 
             lineNumberBox.Text = sb.ToString();
+
+            UpdateLineNumberWidth();
         }
+
+        private void UpdateLineNumberWidth()
+        {
+            int lineCount = Math.Max(1, richTextBox1.Lines.Length);
+            string maxNumber = lineCount.ToString();
+
+            int width = TextRenderer.MeasureText(maxNumber, lineNumberBox.Font).Width + 10;
+
+            splitContainerLines.SplitterDistance = width;
+        }
+
+
 
         private void SetEditorFontSize(float size)
         {
             richTextBox1.Font = new Font(richTextBox1.Font.FontFamily, size);
             richTextBox2.Font = new Font(richTextBox2.Font.FontFamily, size);
+
+            lineNumberBox.Font = new Font(richTextBox1.Font.FontFamily, size);
+            UpdateLineNumberWidth();
         }
+
 
         private void File_DragEnter(object sender, DragEventArgs e)
         {
@@ -328,14 +374,29 @@ namespace compiles_lab_1
                 e.Effect = DragDropEffects.None;
         }
 
+ 
         private void SyncScroll()
         {
-            int firstLine = richTextBox1.GetLineFromCharIndex(
-                richTextBox1.GetCharIndexFromPosition(new Point(0, 0)));
+ 
+            int pos = GetScrollPos(richTextBox1.Handle, SB_VERT);
 
-            lineNumberBox.SelectionStart = lineNumberBox.GetFirstCharIndexFromLine(firstLine);
-            lineNumberBox.ScrollToCaret();
+    
+            int firstVisibleChar = richTextBox1.GetCharIndexFromPosition(new Point(1, 1));
+            int firstVisibleLine = richTextBox1.GetLineFromCharIndex(firstVisibleChar);
+ 
+            int correctedPos = Math.Max(pos, firstVisibleLine);
+ 
+            SetScrollPos(lineNumberBox.Handle, SB_VERT, correctedPos, true);
+
+            SendMessage(
+                lineNumberBox.Handle,
+                WM_VSCROLL,
+                (IntPtr)(correctedPos << 16 | SB_THUMBPOSITION),
+                IntPtr.Zero
+            );
         }
+ 
+
 
         private void File_DragDrop(object sender, DragEventArgs e)
         {
