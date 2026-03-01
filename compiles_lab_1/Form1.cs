@@ -9,6 +9,8 @@ using System.Text;
 using System.Threading;
 using System.Windows.Forms;
 using System.ComponentModel;
+using compiles_lab_1.Core;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace compiles_lab_1
 {
@@ -70,6 +72,14 @@ namespace compiles_lab_1
                 (int)(24 * scale),
                 (int)(24 * scale)
             );
+
+            lineNumberBox.Font = richTextBox1.Font;
+            lineNumberBox.Margin = new Padding(0);
+            lineNumberBox.Padding = new Padding(0);
+            lineNumberBox.AutoSize = false;
+            lineNumberBox.Multiline = true;
+            lineNumberBox.WordWrap = false;
+   
 
             foreach (ToolStripItem item in toolStrip1.Items)
             {
@@ -214,6 +224,13 @@ namespace compiles_lab_1
             toolStripButton10.Click += CopyText;
             toolStripButton9.Click += CutText;
             toolStripButton8.Click += PasteText;
+            toolStripButton7.Click += RunAnalysis;
+            runMenu.Click += RunAnalysis;
+
+            CallHelpToolStripMenuItem.Click += CallHelp;
+            AboutToolStripMenuItem.Click += CallAbout;
+            toolStripButton7.Click += CallHelp;    
+            toolStripButton6.Click += CallAbout; 
 
             richTextBox1.VScroll += (s, e) => { SyncScroll(); UpdateLineNumberWidth(); };
 
@@ -242,28 +259,28 @@ namespace compiles_lab_1
             richTextBox1.TextChanged += (s, e) =>
             {
                 if (_internalTextUpdate) return;
- 
+
                 _internalTextUpdate = true;
+ 
+                int scrollPos = GetScrollPos(richTextBox1.Handle, SB_VERT);
  
                 currentDocument?.UndoManager?.OnTextChanged(richTextBox1);
  
-                int caretIndex = richTextBox1.SelectionStart;
-                Point caretPos = richTextBox1.GetPositionFromCharIndex(caretIndex);
-
-                if (caretPos.Y > richTextBox1.ClientSize.Height - richTextBox1.Font.Height * 2)
-                    richTextBox1.ScrollToCaret();
-
                 if (currentDocument != null)
                     currentDocument.IsModified = true;
 
                 UpdateLineNumbers();
-                SyncScroll();
  
                 SyntaxHighlighter.Highlight(richTextBox1);
-
-                UpdateStatus();
  
+                SetScrollPos(richTextBox1.Handle, SB_VERT, scrollPos, true);
+                SendMessage(richTextBox1.Handle, WM_VSCROLL,
+                    (IntPtr)(scrollPos << 16 | SB_THUMBPOSITION), IntPtr.Zero);
+ 
+                SyncScroll();
+
                 _internalTextUpdate = false;
+
             };
 
         }
@@ -342,12 +359,15 @@ namespace compiles_lab_1
             _internalTextUpdate = true;
             richTextBox1.Text = doc.Text;
             _internalTextUpdate = false;
- 
+
+            richTextBox2.Clear();
+
             foreach (ToolStripButton b in tabsStrip.Items)
                 b.BackColor = SystemColors.Control;
 
             doc.Button.BackColor = Color.LightGray;
             UpdateStatus();
+
         }
 
 
@@ -580,7 +600,8 @@ namespace compiles_lab_1
 
         private void File_DragEnter(object sender, DragEventArgs e)
         {
-            if (e.Data.GetDataPresent(DataFormats.FileDrop))
+           
+            if (e.Data.GetDataPresent(DataFormats.FileDrop) && !e.Data.GetDataPresent(DataFormats.Bitmap))
                 e.Effect = DragDropEffects.Copy;
             else
                 e.Effect = DragDropEffects.None;
@@ -679,10 +700,34 @@ namespace compiles_lab_1
 
         private void CutText(object sender, EventArgs e) => richTextBox1.Cut();
         private void CopyText(object sender, EventArgs e) => richTextBox1.Copy();
-        private void PasteText(object sender, EventArgs e) => richTextBox1.Paste();
+        private void PasteText(object sender, EventArgs e)
+        {
+            if (!Clipboard.ContainsImage())
+                richTextBox1.Paste();
+        }
+        private void CallHelp(object sender, EventArgs e)
+        {
+            HtmlOpener.Help();
+        }
+        private void CallAbout(object sender, EventArgs e)
+        {
+            HtmlOpener.About();
+        }
         private void DeleteText(object sender, EventArgs e) => richTextBox1.SelectedText = "";
         private void SelectAllText(object sender, EventArgs e) => richTextBox1.SelectAll();
 
         private void ExitApp(object sender, EventArgs e) => Close();
+        private void RunAnalysis(object sender, EventArgs e)
+        {
+            if (currentDocument == null)
+                return;
+
+            string text = richTextBox1.Text;
+
+            string result = Scanner.Run(text);
+
+            richTextBox2.Text = result;
+        }
+ 
     }
 }
