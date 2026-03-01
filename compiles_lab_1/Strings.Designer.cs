@@ -61,6 +61,24 @@ namespace compiles_lab_1 {
         }
         
         /// <summary>
+        ///   Ищет локализованную строку, похожую на байт.
+        /// </summary>
+        internal static string Bytes {
+            get {
+                return ResourceManager.GetString("Bytes", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Ищет локализованную строку, похожую на байт (несохранён).
+        /// </summary>
+        internal static string BytesUnsaved {
+            get {
+                return ResourceManager.GetString("BytesUnsaved", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Ищет локализованную строку, похожую на Закрытие документа.
         /// </summary>
         internal static string CloseDocument {
@@ -165,6 +183,60 @@ namespace compiles_lab_1 {
         internal static string Saving {
             get {
                 return ResourceManager.GetString("Saving", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Ищет локализованную строку, похожую на Колонка:.
+        /// </summary>
+        internal static string StatusColumn {
+            get {
+                return ResourceManager.GetString("StatusColumn", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Ищет локализованную строку, похожую на Файл:.
+        /// </summary>
+        internal static string StatusFile {
+            get {
+                return ResourceManager.GetString("StatusFile", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Ищет локализованную строку, похожую на Язык:.
+        /// </summary>
+        internal static string StatusLang {
+            get {
+                return ResourceManager.GetString("StatusLang", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Ищет локализованную строку, похожую на Строка:.
+        /// </summary>
+        internal static string StatusLine {
+            get {
+                return ResourceManager.GetString("StatusLine", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Ищет локализованную строку, похожую на Строк:.
+        /// </summary>
+        internal static string StatusLines {
+            get {
+                return ResourceManager.GetString("StatusLines", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Ищет локализованную строку, похожую на Размер:.
+        /// </summary>
+        internal static string StatusSize {
+            get {
+                return ResourceManager.GetString("StatusSize", resourceCulture);
             }
         }
     }

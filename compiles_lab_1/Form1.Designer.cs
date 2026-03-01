@@ -79,6 +79,7 @@ namespace compiles_lab_1
             toolStripButton1 = new ToolStripButton();
             tabsStrip = new ToolStrip();
             tabContextMenu = new ContextMenuStrip(components);
+            CloseTabMenuItem = new ToolStripMenuItem();
             tableLayoutPanelMain = new TableLayoutPanel();
             ((System.ComponentModel.ISupportInitialize)splitContainer1).BeginInit();
             splitContainer1.Panel1.SuspendLayout();
@@ -94,6 +95,7 @@ namespace compiles_lab_1
             ((System.ComponentModel.ISupportInitialize)dataGridViewErrors).BeginInit();
             menuStrip1.SuspendLayout();
             toolStrip1.SuspendLayout();
+            tabContextMenu.SuspendLayout();
             tableLayoutPanelMain.SuspendLayout();
             SuspendLayout();
             // 
@@ -104,10 +106,12 @@ namespace compiles_lab_1
             // 
             // splitContainer1.Panel1
             // 
+            resources.ApplyResources(splitContainer1.Panel1, "splitContainer1.Panel1");
             splitContainer1.Panel1.Controls.Add(splitContainerLines);
             // 
             // splitContainer1.Panel2
             // 
+            resources.ApplyResources(splitContainer1.Panel2, "splitContainer1.Panel2");
             splitContainer1.Panel2.Controls.Add(tabControlResults);
             // 
             // splitContainerLines
@@ -118,16 +122,18 @@ namespace compiles_lab_1
             // 
             // splitContainerLines.Panel1
             // 
+            resources.ApplyResources(splitContainerLines.Panel1, "splitContainerLines.Panel1");
             splitContainerLines.Panel1.Controls.Add(lineNumberBox);
             // 
             // splitContainerLines.Panel2
             // 
+            resources.ApplyResources(splitContainerLines.Panel2, "splitContainerLines.Panel2");
             splitContainerLines.Panel2.Controls.Add(richTextBox1);
             // 
             // lineNumberBox
             // 
-            lineNumberBox.BackColor = Color.LightGray;
             resources.ApplyResources(lineNumberBox, "lineNumberBox");
+            lineNumberBox.BackColor = Color.LightGray;
             lineNumberBox.ForeColor = Color.Black;
             lineNumberBox.Name = "lineNumberBox";
             lineNumberBox.ReadOnly = true;
@@ -139,16 +145,16 @@ namespace compiles_lab_1
             // 
             // tabControlResults
             // 
+            resources.ApplyResources(tabControlResults, "tabControlResults");
             tabControlResults.Controls.Add(tabPageResults);
             tabControlResults.Controls.Add(tabPageErrors);
-            resources.ApplyResources(tabControlResults, "tabControlResults");
             tabControlResults.Name = "tabControlResults";
             tabControlResults.SelectedIndex = 0;
             // 
             // tabPageResults
             // 
-            tabPageResults.Controls.Add(richTextBox2);
             resources.ApplyResources(tabPageResults, "tabPageResults");
+            tabPageResults.Controls.Add(richTextBox2);
             tabPageResults.Name = "tabPageResults";
             // 
             // richTextBox2
@@ -158,16 +164,16 @@ namespace compiles_lab_1
             // 
             // tabPageErrors
             // 
-            tabPageErrors.Controls.Add(dataGridViewErrors);
             resources.ApplyResources(tabPageErrors, "tabPageErrors");
+            tabPageErrors.Controls.Add(dataGridViewErrors);
             tabPageErrors.Name = "tabPageErrors";
             // 
             // dataGridViewErrors
             // 
+            resources.ApplyResources(dataGridViewErrors, "dataGridViewErrors");
             dataGridViewErrors.AllowUserToAddRows = false;
             dataGridViewErrors.AllowUserToDeleteRows = false;
             dataGridViewErrors.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
-            resources.ApplyResources(dataGridViewErrors, "dataGridViewErrors");
             dataGridViewErrors.Columns.AddRange(new DataGridViewColumn[] { dataGridViewTextBoxColumn1, dataGridViewTextBoxColumn2, dataGridViewTextBoxColumn3, dataGridViewTextBoxColumn4 });
             dataGridViewErrors.Name = "dataGridViewErrors";
             dataGridViewErrors.ReadOnly = true;
@@ -199,168 +205,168 @@ namespace compiles_lab_1
             // 
             // menuStrip1
             // 
+            resources.ApplyResources(menuStrip1, "menuStrip1");
             menuStrip1.ImageScalingSize = new Size(20, 20);
             menuStrip1.Items.AddRange(new ToolStripItem[] { fileMenu, editMenu, textMenu, runMenu, helpMenu, localizationMenu, viewMenu });
-            resources.ApplyResources(menuStrip1, "menuStrip1");
             menuStrip1.Name = "menuStrip1";
             // 
             // fileMenu
             // 
+            resources.ApplyResources(fileMenu, "fileMenu");
             fileMenu.DropDownItems.AddRange(new ToolStripItem[] { CreateToolStripMenuItem, OpenToolStripMenuItem, SaveToolStripMenuItem, SaveAsToolStripMenuItem, ExitToolStripMenuItem });
             fileMenu.Name = "fileMenu";
-            resources.ApplyResources(fileMenu, "fileMenu");
             // 
             // CreateToolStripMenuItem
             // 
-            CreateToolStripMenuItem.Name = "CreateToolStripMenuItem";
             resources.ApplyResources(CreateToolStripMenuItem, "CreateToolStripMenuItem");
+            CreateToolStripMenuItem.Name = "CreateToolStripMenuItem";
             // 
             // OpenToolStripMenuItem
             // 
-            OpenToolStripMenuItem.Name = "OpenToolStripMenuItem";
             resources.ApplyResources(OpenToolStripMenuItem, "OpenToolStripMenuItem");
+            OpenToolStripMenuItem.Name = "OpenToolStripMenuItem";
             // 
             // SaveToolStripMenuItem
             // 
-            SaveToolStripMenuItem.Name = "SaveToolStripMenuItem";
             resources.ApplyResources(SaveToolStripMenuItem, "SaveToolStripMenuItem");
+            SaveToolStripMenuItem.Name = "SaveToolStripMenuItem";
             // 
             // SaveAsToolStripMenuItem
             // 
-            SaveAsToolStripMenuItem.Name = "SaveAsToolStripMenuItem";
             resources.ApplyResources(SaveAsToolStripMenuItem, "SaveAsToolStripMenuItem");
+            SaveAsToolStripMenuItem.Name = "SaveAsToolStripMenuItem";
             // 
             // ExitToolStripMenuItem
             // 
-            ExitToolStripMenuItem.Name = "ExitToolStripMenuItem";
             resources.ApplyResources(ExitToolStripMenuItem, "ExitToolStripMenuItem");
+            ExitToolStripMenuItem.Name = "ExitToolStripMenuItem";
             // 
             // editMenu
             // 
+            resources.ApplyResources(editMenu, "editMenu");
             editMenu.DropDownItems.AddRange(new ToolStripItem[] { CancelToolStripMenuItem, RepeatToolStripMenuItem, CutToolStripMenuItem, CopyToolStripMenuItem, PasteToolStripMenuItem, DeleteToolStripMenuItem, HighlightAllВсеToolStripMenuItem });
             editMenu.Name = "editMenu";
-            resources.ApplyResources(editMenu, "editMenu");
             // 
             // CancelToolStripMenuItem
             // 
-            CancelToolStripMenuItem.Name = "CancelToolStripMenuItem";
             resources.ApplyResources(CancelToolStripMenuItem, "CancelToolStripMenuItem");
+            CancelToolStripMenuItem.Name = "CancelToolStripMenuItem";
             // 
             // RepeatToolStripMenuItem
             // 
-            RepeatToolStripMenuItem.Name = "RepeatToolStripMenuItem";
             resources.ApplyResources(RepeatToolStripMenuItem, "RepeatToolStripMenuItem");
+            RepeatToolStripMenuItem.Name = "RepeatToolStripMenuItem";
             // 
             // CutToolStripMenuItem
             // 
-            CutToolStripMenuItem.Name = "CutToolStripMenuItem";
             resources.ApplyResources(CutToolStripMenuItem, "CutToolStripMenuItem");
+            CutToolStripMenuItem.Name = "CutToolStripMenuItem";
             // 
             // CopyToolStripMenuItem
             // 
-            CopyToolStripMenuItem.Name = "CopyToolStripMenuItem";
             resources.ApplyResources(CopyToolStripMenuItem, "CopyToolStripMenuItem");
+            CopyToolStripMenuItem.Name = "CopyToolStripMenuItem";
             // 
             // PasteToolStripMenuItem
             // 
-            PasteToolStripMenuItem.Name = "PasteToolStripMenuItem";
             resources.ApplyResources(PasteToolStripMenuItem, "PasteToolStripMenuItem");
+            PasteToolStripMenuItem.Name = "PasteToolStripMenuItem";
             // 
             // DeleteToolStripMenuItem
             // 
-            DeleteToolStripMenuItem.Name = "DeleteToolStripMenuItem";
             resources.ApplyResources(DeleteToolStripMenuItem, "DeleteToolStripMenuItem");
+            DeleteToolStripMenuItem.Name = "DeleteToolStripMenuItem";
             // 
             // HighlightAllВсеToolStripMenuItem
             // 
-            HighlightAllВсеToolStripMenuItem.Name = "HighlightAllВсеToolStripMenuItem";
             resources.ApplyResources(HighlightAllВсеToolStripMenuItem, "HighlightAllВсеToolStripMenuItem");
+            HighlightAllВсеToolStripMenuItem.Name = "HighlightAllВсеToolStripMenuItem";
             // 
             // textMenu
             // 
+            resources.ApplyResources(textMenu, "textMenu");
             textMenu.DropDownItems.AddRange(new ToolStripItem[] { TaskToolStripMenuItem, GrammarToolStripMenuItem, ClassificationToolStripMenuItem, AnalysisToolStripMenuItem, ExampleToolStripMenuItem, SourceListToolStripMenuItem, CodeToolStripMenuItem });
             textMenu.Name = "textMenu";
-            resources.ApplyResources(textMenu, "textMenu");
             // 
             // TaskToolStripMenuItem
             // 
-            TaskToolStripMenuItem.Name = "TaskToolStripMenuItem";
             resources.ApplyResources(TaskToolStripMenuItem, "TaskToolStripMenuItem");
+            TaskToolStripMenuItem.Name = "TaskToolStripMenuItem";
             // 
             // GrammarToolStripMenuItem
             // 
-            GrammarToolStripMenuItem.Name = "GrammarToolStripMenuItem";
             resources.ApplyResources(GrammarToolStripMenuItem, "GrammarToolStripMenuItem");
+            GrammarToolStripMenuItem.Name = "GrammarToolStripMenuItem";
             // 
             // ClassificationToolStripMenuItem
             // 
-            ClassificationToolStripMenuItem.Name = "ClassificationToolStripMenuItem";
             resources.ApplyResources(ClassificationToolStripMenuItem, "ClassificationToolStripMenuItem");
+            ClassificationToolStripMenuItem.Name = "ClassificationToolStripMenuItem";
             // 
             // AnalysisToolStripMenuItem
             // 
-            AnalysisToolStripMenuItem.Name = "AnalysisToolStripMenuItem";
             resources.ApplyResources(AnalysisToolStripMenuItem, "AnalysisToolStripMenuItem");
+            AnalysisToolStripMenuItem.Name = "AnalysisToolStripMenuItem";
             // 
             // ExampleToolStripMenuItem
             // 
-            ExampleToolStripMenuItem.Name = "ExampleToolStripMenuItem";
             resources.ApplyResources(ExampleToolStripMenuItem, "ExampleToolStripMenuItem");
+            ExampleToolStripMenuItem.Name = "ExampleToolStripMenuItem";
             // 
             // SourceListToolStripMenuItem
             // 
-            SourceListToolStripMenuItem.Name = "SourceListToolStripMenuItem";
             resources.ApplyResources(SourceListToolStripMenuItem, "SourceListToolStripMenuItem");
+            SourceListToolStripMenuItem.Name = "SourceListToolStripMenuItem";
             // 
             // CodeToolStripMenuItem
             // 
-            CodeToolStripMenuItem.Name = "CodeToolStripMenuItem";
             resources.ApplyResources(CodeToolStripMenuItem, "CodeToolStripMenuItem");
+            CodeToolStripMenuItem.Name = "CodeToolStripMenuItem";
             // 
             // runMenu
             // 
-            runMenu.Name = "runMenu";
             resources.ApplyResources(runMenu, "runMenu");
+            runMenu.Name = "runMenu";
             // 
             // helpMenu
             // 
+            resources.ApplyResources(helpMenu, "helpMenu");
             helpMenu.DropDownItems.AddRange(new ToolStripItem[] { CallHelpToolStripMenuItem, AboutToolStripMenuItem });
             helpMenu.Name = "helpMenu";
-            resources.ApplyResources(helpMenu, "helpMenu");
             // 
             // CallHelpToolStripMenuItem
             // 
-            CallHelpToolStripMenuItem.Name = "CallHelpToolStripMenuItem";
             resources.ApplyResources(CallHelpToolStripMenuItem, "CallHelpToolStripMenuItem");
+            CallHelpToolStripMenuItem.Name = "CallHelpToolStripMenuItem";
             // 
             // AboutToolStripMenuItem
             // 
-            AboutToolStripMenuItem.Name = "AboutToolStripMenuItem";
             resources.ApplyResources(AboutToolStripMenuItem, "AboutToolStripMenuItem");
+            AboutToolStripMenuItem.Name = "AboutToolStripMenuItem";
             // 
             // localizationMenu
             // 
-            localizationMenu.Name = "localizationMenu";
             resources.ApplyResources(localizationMenu, "localizationMenu");
+            localizationMenu.Name = "localizationMenu";
             // 
             // viewMenu
             // 
+            resources.ApplyResources(viewMenu, "viewMenu");
             viewMenu.DropDownItems.AddRange(new ToolStripItem[] { TextSizeMenuItem });
             viewMenu.Name = "viewMenu";
-            resources.ApplyResources(viewMenu, "viewMenu");
             // 
             // TextSizeMenuItem
             // 
+            resources.ApplyResources(TextSizeMenuItem, "TextSizeMenuItem");
             TextSizeMenuItem.DropDownItems.AddRange(new ToolStripItem[] { TextSizeComboBox });
             TextSizeMenuItem.Name = "TextSizeMenuItem";
-            resources.ApplyResources(TextSizeMenuItem, "TextSizeMenuItem");
             // 
             // TextSizeComboBox
             // 
+            resources.ApplyResources(TextSizeComboBox, "TextSizeComboBox");
             TextSizeComboBox.DropDownStyle = ComboBoxStyle.DropDownList;
             TextSizeComboBox.Items.AddRange(new object[] { resources.GetString("TextSizeComboBox.Items"), resources.GetString("TextSizeComboBox.Items1"), resources.GetString("TextSizeComboBox.Items2"), resources.GetString("TextSizeComboBox.Items3"), resources.GetString("TextSizeComboBox.Items4"), resources.GetString("TextSizeComboBox.Items5"), resources.GetString("TextSizeComboBox.Items6"), resources.GetString("TextSizeComboBox.Items7"), resources.GetString("TextSizeComboBox.Items8"), resources.GetString("TextSizeComboBox.Items9"), resources.GetString("TextSizeComboBox.Items10"), resources.GetString("TextSizeComboBox.Items11"), resources.GetString("TextSizeComboBox.Items12"), resources.GetString("TextSizeComboBox.Items13"), resources.GetString("TextSizeComboBox.Items14"), resources.GetString("TextSizeComboBox.Items15") });
             TextSizeComboBox.Name = "TextSizeComboBox";
-            resources.ApplyResources(TextSizeComboBox, "TextSizeComboBox");
             // 
             // toolStrip1
             // 
@@ -423,20 +429,30 @@ namespace compiles_lab_1
             // 
             resources.ApplyResources(toolStripButton1, "toolStripButton1");
             toolStripButton1.Name = "toolStripButton1";
-            // 
+            //
+            // CloseTabMenuItem
+            //
+            this.CloseTabMenuItem = new ToolStripMenuItem();
+            this.CloseTabMenuItem.Name = "CloseTabMenuItem";
+            resources.ApplyResources(this.CloseTabMenuItem, "CloseTabMenuItem");
+            //
+            // tabContextMenu
+            //
+            this.tabContextMenu = new ContextMenuStrip(this.components);
+            this.tabContextMenu.Name = "tabContextMenu";
+            this.tabContextMenu.Items.AddRange(new ToolStripItem[] {
+            this.CloseTabMenuItem
+        });
+            resources.ApplyResources(this.tabContextMenu, "tabContextMenu");
+            //
             // tabsStrip
-            // 
+            //
             resources.ApplyResources(tabsStrip, "tabsStrip");
             tabsStrip.GripStyle = ToolStripGripStyle.Hidden;
             tabsStrip.ImageScalingSize = new Size(20, 20);
             tabsStrip.LayoutStyle = ToolStripLayoutStyle.HorizontalStackWithOverflow;
             tabsStrip.Name = "tabsStrip";
-            // 
-            // tabContextMenu
-            // 
-            tabContextMenu.ImageScalingSize = new Size(20, 20);
-            tabContextMenu.Name = "tabContextMenu";
-            resources.ApplyResources(tabContextMenu, "tabContextMenu");
+            tabsStrip.ContextMenuStrip = this.tabContextMenu;
             // 
             // tableLayoutPanelMain
             // 
@@ -469,9 +485,29 @@ namespace compiles_lab_1
             menuStrip1.PerformLayout();
             toolStrip1.ResumeLayout(false);
             toolStrip1.PerformLayout();
+            tabContextMenu.ResumeLayout(false);
             tableLayoutPanelMain.ResumeLayout(false);
             tableLayoutPanelMain.PerformLayout();
             ResumeLayout(false);
+            //
+            // StatusStrip
+            //
+            statusStrip = new StatusStrip();
+
+            statusFile = new ToolStripStatusLabel("Файл: -");
+            statusPosition = new ToolStripStatusLabel("Строка: 1, Колонка: 1");
+            statusLines = new ToolStripStatusLabel("Строк: 1");
+            statusSize = new ToolStripStatusLabel("Размер: -");
+
+            statusStrip.Items.Add(statusFile);
+            statusStrip.Items.Add(statusPosition);
+            statusStrip.Items.Add(statusLines);
+            statusStrip.Items.Add(statusSize);
+
+            Controls.Add(statusStrip);
+
+            statusLang = new ToolStripStatusLabel("Язык: -");
+            statusStrip.Items.Add(statusLang);
 
 
         }
@@ -485,6 +521,7 @@ namespace compiles_lab_1
         private ToolStripMenuItem helpMenu;
         private ToolStripMenuItem localizationMenu;
         private ToolStripMenuItem viewMenu;
+        private ToolStripStatusLabel statusLang;
 
         private ToolStrip toolStrip1;
         private ToolStripButton toolStripButton2;
@@ -546,6 +583,13 @@ namespace compiles_lab_1
         private DataGridViewTextBoxColumn dataGridViewTextBoxColumn2;
         private DataGridViewTextBoxColumn dataGridViewTextBoxColumn3;
         private DataGridViewTextBoxColumn dataGridViewTextBoxColumn4;
+        private System.Windows.Forms.ToolStripMenuItem CloseTabMenuItem;
+
+        private StatusStrip statusStrip;
+        private ToolStripStatusLabel statusFile;
+        private ToolStripStatusLabel statusPosition;
+        private ToolStripStatusLabel statusLines;
+        private ToolStripStatusLabel statusSize;
 
     }
 }
