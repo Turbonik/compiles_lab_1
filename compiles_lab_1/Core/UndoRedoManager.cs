@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Windows.Forms;
 
-namespace compiles_lab_1
+namespace compiles_lab_1.Core
 {
     public class UndoRedoManager
     {
