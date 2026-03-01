@@ -6,11 +6,24 @@
     <Nullable>enable</Nullable>
     <UseWindowsForms>true</UseWindowsForms>
     <ImplicitUsings>enable</ImplicitUsings>
+    <GeneratePackageOnBuild>False</GeneratePackageOnBuild>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <DebugType>full</DebugType>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+    <DebugType>full</DebugType>
   </PropertyGroup>
 
   <ItemGroup>
     <None Remove="HTMLs\about.html" />
+    <None Remove="HTMLs\about_en.html" />
+    <None Remove="HTMLs\about_ru.html" />
     <None Remove="HTMLs\help.html" />
+    <None Remove="HTMLs\help_en.html" />
+    <None Remove="HTMLs\help_ru.html" />
     <None Remove="IconsForCompiles\About.png" />
     <None Remove="IconsForCompiles\Copy.png" />
     <None Remove="IconsForCompiles\Create.png" />
@@ -25,10 +38,16 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Content Include="HTMLs\about.html">
+    <Content Include="HTMLs\about_en.html">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="HTMLs\help.html">
+    <Content Include="HTMLs\about_ru.html">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="HTMLs\help_en.html">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="HTMLs\help_ru.html">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <Content Include="IconsForCompiles\About.png">

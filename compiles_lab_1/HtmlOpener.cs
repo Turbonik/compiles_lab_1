@@ -9,10 +9,17 @@ namespace compiles_lab_1
     internal static class HtmlOpener
     {
         readonly static string basePath = AppDomain.CurrentDomain.BaseDirectory;
+
+
         public static void Help()
         {
- 
-            string helpPath = Path.Combine(basePath, "HTMLs", "help.html");
+            string lang = Thread.CurrentThread.CurrentUICulture.TwoLetterISOLanguageName;
+
+            string HelpFile = lang == "ru"
+                ? "HTMLs/help_ru.html"
+                : "HTMLs/help_en.html";
+
+            string helpPath = Path.Combine(basePath, HelpFile);
 
 
             CheckPath(helpPath);
@@ -20,8 +27,13 @@ namespace compiles_lab_1
 
         public static void About()
         {
- 
-            string aboutPath = Path.Combine(basePath, "HTMLs", "about.html");
+            string lang = Thread.CurrentThread.CurrentUICulture.TwoLetterISOLanguageName;
+
+            string AboutFile = lang == "ru"
+             ? "HTMLs/about_ru.html"
+             : "HTMLs/about_en.html";
+
+            string aboutPath = Path.Combine(basePath, AboutFile);
 
             CheckPath(aboutPath);
         }
