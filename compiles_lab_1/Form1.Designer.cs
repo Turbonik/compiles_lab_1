@@ -81,6 +81,12 @@ namespace compiles_lab_1
             tabContextMenu = new ContextMenuStrip(components);
             CloseTabMenuItem = new ToolStripMenuItem();
             tableLayoutPanelMain = new TableLayoutPanel();
+            statusStrip = new StatusStrip();
+            statusFile = new ToolStripStatusLabel();
+            statusPosition = new ToolStripStatusLabel();
+            statusLines = new ToolStripStatusLabel();
+            statusSize = new ToolStripStatusLabel();
+            statusLang = new ToolStripStatusLabel();
             ((System.ComponentModel.ISupportInitialize)splitContainer1).BeginInit();
             splitContainer1.Panel1.SuspendLayout();
             splitContainer1.Panel2.SuspendLayout();
@@ -97,6 +103,7 @@ namespace compiles_lab_1
             toolStrip1.SuspendLayout();
             tabContextMenu.SuspendLayout();
             tableLayoutPanelMain.SuspendLayout();
+            statusStrip.SuspendLayout();
             SuspendLayout();
             // 
             // splitContainer1
@@ -429,30 +436,27 @@ namespace compiles_lab_1
             // 
             resources.ApplyResources(toolStripButton1, "toolStripButton1");
             toolStripButton1.Name = "toolStripButton1";
-            //
-            // CloseTabMenuItem
-            //
-            this.CloseTabMenuItem = new ToolStripMenuItem();
-            this.CloseTabMenuItem.Name = "CloseTabMenuItem";
-            resources.ApplyResources(this.CloseTabMenuItem, "CloseTabMenuItem");
-            //
-            // tabContextMenu
-            //
-            this.tabContextMenu = new ContextMenuStrip(this.components);
-            this.tabContextMenu.Name = "tabContextMenu";
-            this.tabContextMenu.Items.AddRange(new ToolStripItem[] {
-            this.CloseTabMenuItem
-        });
-            resources.ApplyResources(this.tabContextMenu, "tabContextMenu");
-            //
+            // 
             // tabsStrip
-            //
+            // 
             resources.ApplyResources(tabsStrip, "tabsStrip");
+            tabsStrip.ContextMenuStrip = tabContextMenu;
             tabsStrip.GripStyle = ToolStripGripStyle.Hidden;
             tabsStrip.ImageScalingSize = new Size(20, 20);
             tabsStrip.LayoutStyle = ToolStripLayoutStyle.HorizontalStackWithOverflow;
             tabsStrip.Name = "tabsStrip";
-            tabsStrip.ContextMenuStrip = this.tabContextMenu;
+            // 
+            // tabContextMenu
+            // 
+            resources.ApplyResources(tabContextMenu, "tabContextMenu");
+            tabContextMenu.ImageScalingSize = new Size(20, 20);
+            tabContextMenu.Items.AddRange(new ToolStripItem[] { CloseTabMenuItem });
+            tabContextMenu.Name = "tabContextMenu";
+            // 
+            // CloseTabMenuItem
+            // 
+            resources.ApplyResources(CloseTabMenuItem, "CloseTabMenuItem");
+            CloseTabMenuItem.Name = "CloseTabMenuItem";
             // 
             // tableLayoutPanelMain
             // 
@@ -463,10 +467,43 @@ namespace compiles_lab_1
             tableLayoutPanelMain.Controls.Add(splitContainer1, 0, 3);
             tableLayoutPanelMain.Name = "tableLayoutPanelMain";
             // 
+            // statusStrip
+            // 
+            resources.ApplyResources(statusStrip, "statusStrip");
+            statusStrip.ImageScalingSize = new Size(20, 20);
+            statusStrip.Items.AddRange(new ToolStripItem[] { statusFile, statusPosition, statusLines, statusSize, statusLang });
+            statusStrip.Name = "statusStrip";
+            // 
+            // statusFile
+            // 
+            resources.ApplyResources(statusFile, "statusFile");
+            statusFile.Name = "statusFile";
+            // 
+            // statusPosition
+            // 
+            resources.ApplyResources(statusPosition, "statusPosition");
+            statusPosition.Name = "statusPosition";
+            // 
+            // statusLines
+            // 
+            resources.ApplyResources(statusLines, "statusLines");
+            statusLines.Name = "statusLines";
+            // 
+            // statusSize
+            // 
+            resources.ApplyResources(statusSize, "statusSize");
+            statusSize.Name = "statusSize";
+            // 
+            // statusLang
+            // 
+            resources.ApplyResources(statusLang, "statusLang");
+            statusLang.Name = "statusLang";
+            // 
             // Form1
             // 
             resources.ApplyResources(this, "$this");
             Controls.Add(tableLayoutPanelMain);
+            Controls.Add(statusStrip);
             Name = "Form1";
             WindowState = FormWindowState.Maximized;
             splitContainer1.Panel1.ResumeLayout(false);
@@ -488,26 +525,10 @@ namespace compiles_lab_1
             tabContextMenu.ResumeLayout(false);
             tableLayoutPanelMain.ResumeLayout(false);
             tableLayoutPanelMain.PerformLayout();
+            statusStrip.ResumeLayout(false);
+            statusStrip.PerformLayout();
             ResumeLayout(false);
-            //
-            // StatusStrip
-            //
-            statusStrip = new StatusStrip();
-
-            statusFile = new ToolStripStatusLabel("Файл: -");
-            statusPosition = new ToolStripStatusLabel("Строка: 1, Колонка: 1");
-            statusLines = new ToolStripStatusLabel("Строк: 1");
-            statusSize = new ToolStripStatusLabel("Размер: -");
-
-            statusStrip.Items.Add(statusFile);
-            statusStrip.Items.Add(statusPosition);
-            statusStrip.Items.Add(statusLines);
-            statusStrip.Items.Add(statusSize);
-
-            Controls.Add(statusStrip);
-
-            statusLang = new ToolStripStatusLabel("Язык: -");
-            statusStrip.Items.Add(statusLang);
+            PerformLayout();
 
 
         }

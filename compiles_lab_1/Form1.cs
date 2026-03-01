@@ -48,7 +48,51 @@ namespace compiles_lab_1
             fileManager = new FileManager();
             AttachEvents();
             HotKeysBinder();
+            this.Resize += (s, e) => ScaleUI();
+
         }
+
+        private void ScaleUI()
+        {
+            float baseHeight = 720f;
+            float scale = this.Height / baseHeight;
+
+            if (scale < 0.8f) scale = 0.8f;
+            if (scale > 1.4f) scale = 1.4f;
+
+            toolStrip1.AutoSize = false;
+            toolStrip1.Height = (int)(40 * scale);
+
+            toolStrip1.ImageScalingSize = new Size(
+                (int)(24 * scale),
+                (int)(24 * scale)
+            );
+
+            foreach (ToolStripItem item in toolStrip1.Items)
+            {
+                item.ImageScaling = ToolStripItemImageScaling.SizeToFit;
+                item.AutoSize = false;
+                item.Width = (int)(48 * scale);
+                item.Height = (int)(48 * scale);
+            }
+
+            menuStrip1.AutoSize = false;
+            menuStrip1.Height = (int)(40 * scale);
+            menuStrip1.Font = new Font(menuStrip1.Font.FontFamily, 10 * scale);
+
+            statusStrip.AutoSize = false;
+            statusStrip.Height = (int)(32 * scale);
+
+            foreach (ToolStripItem item in statusStrip.Items)
+                item.Font = new Font(item.Font.FontFamily, 9 * scale);
+
+            tabControlResults.Font = new Font(tabControlResults.Font.FontFamily, 10 * scale);
+
+            dataGridViewErrors.Font = new Font("Segoe UI", 9);
+
+        }
+
+
 
         private void SetLanguage(string culture)
         {
@@ -99,6 +143,7 @@ namespace compiles_lab_1
             UpdateLineNumbers();
 
             CloseTabMenuItem.Text = Strings.CloseTab;
+            ScaleUI();
         }
 
         private void ApplyResourcesRecursive(Control control, ComponentResourceManager res)
