@@ -8,19 +8,21 @@ namespace compiles_lab_1
 {
     internal static class HtmlOpener
     {
+        readonly static string basePath = AppDomain.CurrentDomain.BaseDirectory;
         public static void Help()
         {
-            string exePath = Application.StartupPath;
-            string helpPath = Path.Combine(exePath, "HTMLs", "help.html");
+ 
+            string helpPath = Path.Combine(basePath, "HTMLs", "help.html");
+
 
             CheckPath(helpPath);
         }
 
         public static void About()
         {
-            string exePath = Application.StartupPath;
-            string aboutPath = Path.Combine(exePath, "HTMLs", "about.html");
-            
+ 
+            string aboutPath = Path.Combine(basePath, "HTMLs", "about.html");
+
             CheckPath(aboutPath);
         }
 
