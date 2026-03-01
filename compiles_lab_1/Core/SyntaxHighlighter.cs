@@ -12,50 +12,53 @@ namespace compiles_lab_1.Core
             "if", "for", "while", "else", "return", "int", "string", "bool", "void"
         };
 
+        private static readonly char[] separators =
+        {
+            ' ', '\t', '\n', '\r', '(', ')', '{', '}', '[', ']', ';', ',', '.', ':',
+            '"', '\'', '+', '-', '*', '/', '%', '=', '!', '<', '>'
+        };
+
         public static void Highlight(RichTextBox box)
         {
             int selStart = box.SelectionStart;
             int selLength = box.SelectionLength;
 
-            int wordStart = selStart;
-            while (wordStart > 0 && !char.IsWhiteSpace(box.Text[wordStart - 1]))
-                wordStart--;
+            box.SuspendLayout();
+ 
+            box.Select(0, box.Text.Length);
+            box.SelectionColor = Color.Black;
 
-            int wordEnd = selStart;
-            while (wordEnd < box.Text.Length && !char.IsWhiteSpace(box.Text[wordEnd]))
-                wordEnd++;
+            int index = 0;
 
-            if (wordEnd > wordStart)
+            while (index < box.Text.Length)
             {
-                string original = box.Text.Substring(wordStart, wordEnd - wordStart);
-                string lower = original.ToLower();
-
-                if (keywords.Contains(lower))
+ 
+                if (Array.IndexOf(separators, box.Text[index]) >= 0)
                 {
-                    box.SelectionStart = wordStart;
-                    box.SelectionLength = original.Length;
-
-                    if (original != lower)
-                    {
-                        box.SelectedText = lower;
-                        box.SelectionStart = wordStart;
-                        box.SelectionLength = lower.Length;
-                    }
-
-                    box.SelectionColor = Color.Blue;
+                    index++;
+                    continue;
                 }
-                else
+ 
+                int start = index;
+                while (index < box.Text.Length &&
+                       Array.IndexOf(separators, box.Text[index]) < 0)
                 {
-                    box.SelectionStart = wordStart;
-                    box.SelectionLength = original.Length;
-                    box.SelectionColor = Color.Black;
+                    index++;
+                }
+
+                string word = box.Text.Substring(start, index - start);
+
+                if (keywords.Contains(word.ToLower()))
+                {
+                    box.Select(start, word.Length);
+                    box.SelectionColor = Color.Blue;
                 }
             }
 
             box.SelectionStart = selStart;
             box.SelectionLength = selLength;
+
+            box.ResumeLayout();
         }
     }
 }
-
-
