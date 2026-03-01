@@ -17,45 +17,41 @@ namespace compiles_lab_1
             int selStart = box.SelectionStart;
             int selLength = box.SelectionLength;
 
-            int wordStart = selStart;
-            while (wordStart > 0 && !char.IsWhiteSpace(box.Text[wordStart - 1]))
-                wordStart--;
+            box.SuspendLayout();
 
-            int wordEnd = selStart;
-            while (wordEnd < box.Text.Length && !char.IsWhiteSpace(box.Text[wordEnd]))
-                wordEnd++;
+            Color defaultColor = Color.Black;
+            Color keywordColor = Color.Blue;
 
-            if (wordEnd > wordStart)
+            int i = 0;
+            while (i < box.Text.Length)
             {
-                string original = box.Text.Substring(wordStart, wordEnd - wordStart);
-                string lower = original.ToLower();
-
-                if (keywords.Contains(lower))
+                if (char.IsLetter(box.Text[i]))
                 {
-                    box.SelectionStart = wordStart;
-                    box.SelectionLength = original.Length;
+                    int start = i;
+                    while (i < box.Text.Length && char.IsLetter(box.Text[i]))
+                        i++;
 
-                    if (original != lower)
+                    string word = box.Text.Substring(start, i - start);
+
+                    if (keywords.Contains(word.ToLower()))
                     {
-                        box.SelectedText = lower;
-                        box.SelectionStart = wordStart;
-                        box.SelectionLength = lower.Length;
+                        box.Select(start, word.Length);
+                        box.SelectionColor = keywordColor;
                     }
-
-                    box.SelectionColor = Color.Blue;
+                    else
+                    {
+                        box.Select(start, word.Length);
+                        box.SelectionColor = defaultColor;
+                    }
                 }
                 else
                 {
-                    box.SelectionStart = wordStart;
-                    box.SelectionLength = original.Length;
-                    box.SelectionColor = Color.Black;
+                    i++;
                 }
             }
 
-            box.SelectionStart = selStart;
-            box.SelectionLength = selLength;
+            box.Select(selStart, selLength);
+            box.ResumeLayout();
         }
     }
 }
-
-

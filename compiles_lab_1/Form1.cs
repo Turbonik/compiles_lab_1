@@ -28,6 +28,7 @@ namespace compiles_lab_1
         const int SB_THUMBPOSITION = 4;
 
         private FileManager fileManager;
+ 
 
         private class DocumentTab
         {
@@ -35,6 +36,7 @@ namespace compiles_lab_1
             public string FilePath;
             public string Text;
             public bool IsModified;
+            public UndoRedoManager UndoManager;
             public ToolStripButton Button;
         }
 
@@ -45,6 +47,7 @@ namespace compiles_lab_1
         public Form1()
         {
             InitializeComponent();
+ 
             fileManager = new FileManager();
             AttachEvents();
             HotKeysBinder();
@@ -239,7 +242,11 @@ namespace compiles_lab_1
             richTextBox1.TextChanged += (s, e) =>
             {
                 if (_internalTextUpdate) return;
-
+ 
+                _internalTextUpdate = true;
+ 
+                currentDocument?.UndoManager?.OnTextChanged(richTextBox1);
+ 
                 int caretIndex = richTextBox1.SelectionStart;
                 Point caretPos = richTextBox1.GetPositionFromCharIndex(caretIndex);
 
@@ -251,11 +258,14 @@ namespace compiles_lab_1
 
                 UpdateLineNumbers();
                 SyncScroll();
+ 
                 SyntaxHighlighter.Highlight(richTextBox1);
+
                 UpdateStatus();
-
-
+ 
+                _internalTextUpdate = false;
             };
+
         }
 
         private void HotKeysBinder()
@@ -290,7 +300,8 @@ namespace compiles_lab_1
                 Title = Strings.NewDocument,
                 FilePath = null,
                 Text = "",
-                IsModified = false
+                IsModified = false,
+                UndoManager = new UndoRedoManager()
             };
 
             var btn = new ToolStripButton(doc.Title);
@@ -301,8 +312,11 @@ namespace compiles_lab_1
             documents.Add(doc);
             tabsStrip.Items.Add(btn);
             richTextBox1.Enabled = true;
+ 
             SwitchToDocument(doc);
+            doc.UndoManager.ResetInitial(richTextBox1);
         }
+
 
         private void TabMouseUp(object sender, MouseEventArgs e)
         {
@@ -327,9 +341,8 @@ namespace compiles_lab_1
 
             _internalTextUpdate = true;
             richTextBox1.Text = doc.Text;
-            UpdateLineNumberWidth();
             _internalTextUpdate = false;
-
+ 
             foreach (ToolStripButton b in tabsStrip.Items)
                 b.BackColor = SystemColors.Control;
 
@@ -337,46 +350,58 @@ namespace compiles_lab_1
             UpdateStatus();
         }
 
+
+
+
         private void OpenFile(object sender, EventArgs e)
         {
-            if (!CanCreateNewDocument()) return;
+            if (!CanCreateNewDocument())
+                return;
 
-            string path;
-            var text = fileManager.OpenFileDialogAndRead(out path);
+            string path, text;
+
+            if (!fileManager.TryOpenFileDialog(out path, out text))
+                return;
+
             if (IsFileAlreadyOpen(path))
             {
-                var doc = documents.First(d => string.Equals(d.FilePath, path, StringComparison.OrdinalIgnoreCase));
+                var doc = documents.First(d => d.FilePath == path);
                 SwitchToDocument(doc);
                 return;
             }
-            if (text == null)
-                return;
 
             OpenFileFromPath(path);
             richTextBox1.Enabled = true;
             UpdateStatus();
         }
 
+
         private void OpenFileFromPath(string path)
         {
             if (IsFileAlreadyOpen(path))
             {
-                var existing = documents.First(d => string.Equals(d.FilePath, path, StringComparison.OrdinalIgnoreCase));
+                var existing = documents.First(d => d.FilePath == path);
                 SwitchToDocument(existing);
                 return;
             }
 
-            if (!CanCreateNewDocument()) return;
+            if (!CanCreateNewDocument())
+                return;
 
-            string text = File.ReadAllText(path);
+            string text;
+
+            if (!fileManager.TryReadFile(path, out text))
+                return;
 
             var newDoc = new DocumentTab
             {
                 Title = Path.GetFileName(path),
                 FilePath = path,
                 Text = text,
-                IsModified = false
+                IsModified = false,
+                UndoManager = new UndoRedoManager()
             };
+
 
             var btn = new ToolStripButton(newDoc.Title);
             btn.MouseUp += TabMouseUp;
@@ -387,8 +412,9 @@ namespace compiles_lab_1
             tabsStrip.Items.Add(btn);
 
             SwitchToDocument(newDoc);
-             
+            newDoc.UndoManager.ResetInitial(richTextBox1);
         }
+
 
 
         private bool CanCreateNewDocument()
@@ -414,10 +440,13 @@ namespace compiles_lab_1
                 return;
             }
 
-            fileManager.SaveFile(currentDocument.FilePath, currentDocument.Text);
-            currentDocument.IsModified = false;
-            UpdateStatus();
+            if (fileManager.TrySaveFile(currentDocument.FilePath, currentDocument.Text))
+            {
+                currentDocument.IsModified = false;
+                UpdateStatus();
+            }
         }
+
 
         private void SaveFileAs(object sender, EventArgs e)
         {
@@ -426,16 +455,18 @@ namespace compiles_lab_1
 
             currentDocument.Text = richTextBox1.Text;
 
-            var path = fileManager.SaveFileDialogAndWrite(currentDocument.Text);
-            if (path != null)
+            string path;
+
+            if (fileManager.TrySaveFileDialog(currentDocument.Text, out path))
             {
                 currentDocument.FilePath = path;
                 currentDocument.Title = Path.GetFileName(path);
                 currentDocument.Button.Text = currentDocument.Title;
                 currentDocument.IsModified = false;
+                UpdateStatus();
             }
-            UpdateStatus();
         }
+
 
         private void CloseDocument(DocumentTab doc)
         {
@@ -638,14 +669,12 @@ namespace compiles_lab_1
 
         private void UndoText(object sender, EventArgs e)
         {
-            if (richTextBox1.CanUndo)
-                richTextBox1.Undo();
+            currentDocument?.UndoManager?.Undo(richTextBox1);
         }
 
         private void RedoText(object sender, EventArgs e)
         {
-            if (richTextBox1.CanRedo)
-                richTextBox1.Redo();
+            currentDocument?.UndoManager?.Redo(richTextBox1);
         }
 
         private void CutText(object sender, EventArgs e) => richTextBox1.Cut();
