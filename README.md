@@ -19,7 +19,7 @@ GUI фреймворк: **Windows Forms**.
 IDE: **Visual Studio**.
 
 ## Инструкция по сборке и запуску: 
-Путь к исполняему файлу: "..\bin\Debug\net9.0-windows\compiles_lab_1.exe"
+Путь к исполняемому файлу: "..\bin\Debug\net9.0-windows\compiles_lab_1.exe"
 
 # Руководство пользователя:
 ## Главное окно приложения
