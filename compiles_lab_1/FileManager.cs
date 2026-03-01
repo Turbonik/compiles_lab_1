@@ -2,38 +2,88 @@
 {
     public class FileManager
     {
-        public string OpenFileDialogAndRead(out string path)
+        public bool TryOpenFileDialog(out string path, out string text)
         {
-            var dialog = new OpenFileDialog();
-            dialog.Filter = "Текстовые файлы|*.txt|Все файлы|*.*";
-
-            if (dialog.ShowDialog() == DialogResult.OK)
-            {
-                path = dialog.FileName;
-                return File.ReadAllText(path);
-            }
-
             path = null;
-            return null;
-        }
+            text = null;
 
-        public void SaveFile(string path, string text)
-        {
-            File.WriteAllText(path, text);
-        }
-
-        public string SaveFileDialogAndWrite(string text)
-        {
-            var dialog = new SaveFileDialog();
-            dialog.Filter = "Текстовые файлы|*.txt|Все файлы|*.*";
-
-            if (dialog.ShowDialog() == DialogResult.OK)
+            var dialog = new OpenFileDialog
             {
-                File.WriteAllText(dialog.FileName, text);
-                return dialog.FileName;
-            }
+                Filter = "Текстовые файлы|*.txt|Все файлы|*.*"
+            };
 
-            return null;
+            if (dialog.ShowDialog() != DialogResult.OK)
+                return false;
+
+            path = dialog.FileName;
+
+            try
+            {
+                text = File.ReadAllText(path);
+                return true;
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Ошибка чтения файла:\n{ex.Message}", "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return false;
+            }
+        }
+
+        public bool TryReadFile(string path, out string text)
+        {
+            text = null;
+
+            try
+            {
+                text = File.ReadAllText(path);
+                return true;
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Ошибка чтения файла:\n{ex.Message}", "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return false;
+            }
+        }
+
+        public bool TrySaveFile(string path, string text)
+        {
+            try
+            {
+                File.WriteAllText(path, text);
+                return true;
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Ошибка сохранения файла:\n{ex.Message}", "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return false;
+            }
+        }
+
+        public bool TrySaveFileDialog(string text, out string path)
+        {
+            path = null;
+
+            var dialog = new SaveFileDialog
+            {
+                Filter = "Текстовые файлы|*.txt|Все файлы|*.*"
+            };
+
+            if (dialog.ShowDialog() != DialogResult.OK)
+                return false;
+
+            path = dialog.FileName;
+
+            try
+            {
+                File.WriteAllText(path, text);
+                return true;
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Ошибка сохранения файла:\n{ex.Message}", "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return false;
+            }
         }
     }
+
 }
