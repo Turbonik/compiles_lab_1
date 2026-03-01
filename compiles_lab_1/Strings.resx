@@ -117,6 +117,12 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
+  <data name="Bytes" xml:space="preserve">
+    <value>байт</value>
+  </data>
+  <data name="BytesUnsaved" xml:space="preserve">
+    <value>байт (несохранён)</value>
+  </data>
   <data name="CloseDocument" xml:space="preserve">
     <value>Закрытие документа</value>
   </data>
@@ -152,5 +158,23 @@
   </data>
   <data name="Saving" xml:space="preserve">
     <value>Сохранение</value>
+  </data>
+  <data name="StatusColumn" xml:space="preserve">
+    <value>Колонка:</value>
+  </data>
+  <data name="StatusFile" xml:space="preserve">
+    <value>Файл:</value>
+  </data>
+  <data name="StatusLang" xml:space="preserve">
+    <value>Язык:</value>
+  </data>
+  <data name="StatusLine" xml:space="preserve">
+    <value>Строка:</value>
+  </data>
+  <data name="StatusSize" xml:space="preserve">
+    <value>Размер:</value>
+  </data>
+  <data name="StatusLines" xml:space="preserve">
+    <value>Строк:</value>
   </data>
 </root>

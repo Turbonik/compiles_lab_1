@@ -46,33 +46,67 @@ namespace compiles_lab_1
         {
             InitializeComponent();
             fileManager = new FileManager();
-            ReattachEvents();
-         
+            AttachEvents();
+            HotKeysBinder();
         }
 
         private void SetLanguage(string culture)
         {
+            if (currentDocument != null)
+                currentDocument.Text = richTextBox1.Text;
+
+            int index = documents.IndexOf(currentDocument);
+
+            float editorFontSize = richTextBox1.Font.Size;
+
             Thread.CurrentThread.CurrentUICulture = new CultureInfo(culture);
             var res = new ComponentResourceManager(typeof(Form1));
+
             SuspendLayout();
             ApplyResourcesRecursive(this, res);
             ResumeLayout(true);
 
+            tabsStrip.Items.Clear();
             foreach (var doc in documents)
-                if (doc.Button != null)
-                    doc.Button.Text = doc.Title;
-
-            if (currentDocument != null && currentDocument.Button != null)
             {
-                foreach (ToolStripButton b in tabsStrip.Items)
-                    b.BackColor = SystemColors.Control;
-                currentDocument.Button.BackColor = Color.LightGray;
+                if (doc.FilePath == null)
+                    doc.Title = Strings.NewDocument;
+
+                var btn = new ToolStripButton(doc.Title);
+                btn.MouseUp += TabMouseUp;
+                btn.Click += (s, e) => SwitchToDocument(doc);
+                doc.Button = btn;
+                tabsStrip.Items.Add(btn);
             }
+
+            if (index >= 0 && index < documents.Count)
+            {
+                currentDocument = documents[index];
+                _internalTextUpdate = true;
+                richTextBox1.Text = currentDocument.Text;
+                _internalTextUpdate = false;
+                SwitchToDocument(currentDocument);
+            }
+            else
+            {
+                currentDocument = null;
+                richTextBox1.Clear();
+            }
+
+            richTextBox1.Enabled = currentDocument != null;
+
+            SetEditorFontSize(editorFontSize);
+            UpdateLineNumbers();
+
+            CloseTabMenuItem.Text = Strings.CloseTab;
         }
 
         private void ApplyResourcesRecursive(Control control, ComponentResourceManager res)
         {
-            if (!string.IsNullOrEmpty(control.Name))
+            if (!string.IsNullOrEmpty(control.Name) &&
+                control != richTextBox1 &&
+                control != richTextBox2 &&
+                control != lineNumberBox)
                 res.ApplyResources(control, control.Name);
 
             if (control is MenuStrip ms)
@@ -87,6 +121,7 @@ namespace compiles_lab_1
                 ApplyResourcesRecursive(child, res);
         }
 
+
         private void ApplyResourcesToolStripItem(ToolStripItem item, ComponentResourceManager res)
         {
             if (!string.IsNullOrEmpty(item.Name))
@@ -96,18 +131,18 @@ namespace compiles_lab_1
                 foreach (ToolStripItem sub in dd.DropDownItems)
                     ApplyResourcesToolStripItem(sub, res);
         }
- 
-        private void ReattachEvents()
+
+        private void AttachEvents()
         {
-            if (tabContextMenu.Items.Count == 0)
-                tabContextMenu.Items.Add(Strings.CloseTab);
+
 
             TextSizeComboBox.Text = "9";
             splitContainer1.Panel1.AllowDrop = true;
             richTextBox1.AllowDrop = true;
-            
+
             localizationMenu.DropDownItems.Add("English", null, (s, e) => SetLanguage("en"));
             localizationMenu.DropDownItems.Add("Русский", null, (s, e) => SetLanguage("ru"));
+            this.InputLanguageChanged += (s, e) => UpdateStatus();
 
             CreateToolStripMenuItem.Click += CreateFile;
             OpenToolStripMenuItem.Click += OpenFile;
@@ -144,12 +179,17 @@ namespace compiles_lab_1
 
             splitContainer1.Panel1.DragEnter += File_DragEnter;
             splitContainer1.Panel1.DragDrop += File_DragDrop;
+            richTextBox1.DragEnter += File_DragEnter;
+            richTextBox1.DragDrop += File_DragDrop;
+            richTextBox1.SelectionChanged += (s, e) => UpdateStatus();
 
-            tabContextMenu.Items[0].Click += (s, e) =>
+            CloseTabMenuItem.Text = Strings.CloseTab;
+            CloseTabMenuItem.Click += (s, e) =>
             {
                 if (currentDocument != null)
                     CloseDocument(currentDocument);
             };
+
 
             richTextBox1.TextChanged += (s, e) =>
             {
@@ -166,7 +206,34 @@ namespace compiles_lab_1
 
                 UpdateLineNumbers();
                 SyncScroll();
+                SyntaxHighlighter.Highlight(richTextBox1);
+                UpdateStatus();
+
+
             };
+        }
+
+        private void HotKeysBinder()
+        {
+            CreateToolStripMenuItem.ShortcutKeys = Keys.Control | Keys.N;
+            OpenToolStripMenuItem.ShortcutKeys = Keys.Control | Keys.O;
+            SaveToolStripMenuItem.ShortcutKeys = Keys.Control | Keys.S;
+
+            CancelToolStripMenuItem.ShortcutKeys = Keys.Control | Keys.Z;
+            RepeatToolStripMenuItem.ShortcutKeys = Keys.Control | Keys.Y;
+
+            CopyToolStripMenuItem.ShortcutKeys = Keys.Control | Keys.C;
+            CutToolStripMenuItem.ShortcutKeys = Keys.Control | Keys.X;
+            PasteToolStripMenuItem.ShortcutKeys = Keys.Control | Keys.V;
+
+            CallHelpToolStripMenuItem.ShortcutKeys = Keys.F1;
+            AboutToolStripMenuItem.ShortcutKeys = Keys.Control | Keys.F1;
+            runMenu.ShortcutKeys = Keys.F5;
+
+            toolStripButton7.Click += (s, e) => CallHelpToolStripMenuItem.PerformClick();
+            toolStripButton6.Click += (s, e) => AboutToolStripMenuItem.PerformClick();
+            toolStripButton1.Click += (s, e) => runMenu.PerformClick();
+
         }
 
         private void CreateFile(object sender, EventArgs e)
@@ -222,6 +289,7 @@ namespace compiles_lab_1
                 b.BackColor = SystemColors.Control;
 
             doc.Button.BackColor = Color.LightGray;
+            UpdateStatus();
         }
 
         private void OpenFile(object sender, EventArgs e)
@@ -230,20 +298,34 @@ namespace compiles_lab_1
 
             string path;
             var text = fileManager.OpenFileDialogAndRead(out path);
+            if (IsFileAlreadyOpen(path))
+            {
+                var doc = documents.First(d => string.Equals(d.FilePath, path, StringComparison.OrdinalIgnoreCase));
+                SwitchToDocument(doc);
+                return;
+            }
             if (text == null)
                 return;
 
             OpenFileFromPath(path);
             richTextBox1.Enabled = true;
+            UpdateStatus();
         }
 
         private void OpenFileFromPath(string path)
         {
+            if (IsFileAlreadyOpen(path))
+            {
+                var existing = documents.First(d => string.Equals(d.FilePath, path, StringComparison.OrdinalIgnoreCase));
+                SwitchToDocument(existing);
+                return;
+            }
+
             if (!CanCreateNewDocument()) return;
 
             string text = File.ReadAllText(path);
 
-            var doc = new DocumentTab
+            var newDoc = new DocumentTab
             {
                 Title = Path.GetFileName(path),
                 FilePath = path,
@@ -251,16 +333,18 @@ namespace compiles_lab_1
                 IsModified = false
             };
 
-            var btn = new ToolStripButton(doc.Title);
+            var btn = new ToolStripButton(newDoc.Title);
             btn.MouseUp += TabMouseUp;
-            btn.Click += (s, ev) => SwitchToDocument(doc);
+            btn.Click += (s, ev) => SwitchToDocument(newDoc);
 
-            doc.Button = btn;
-            documents.Add(doc);
+            newDoc.Button = btn;
+            documents.Add(newDoc);
             tabsStrip.Items.Add(btn);
 
-            SwitchToDocument(doc);
+            SwitchToDocument(newDoc);
+             
         }
+
 
         private bool CanCreateNewDocument()
         {
@@ -287,6 +371,7 @@ namespace compiles_lab_1
 
             fileManager.SaveFile(currentDocument.FilePath, currentDocument.Text);
             currentDocument.IsModified = false;
+            UpdateStatus();
         }
 
         private void SaveFileAs(object sender, EventArgs e)
@@ -304,6 +389,7 @@ namespace compiles_lab_1
                 currentDocument.Button.Text = currentDocument.Title;
                 currentDocument.IsModified = false;
             }
+            UpdateStatus();
         }
 
         private void CloseDocument(DocumentTab doc)
@@ -388,11 +474,33 @@ namespace compiles_lab_1
 
         private void SetEditorFontSize(float size)
         {
+            bool wasEmpty = richTextBox1.TextLength == 0;
+
+            if (wasEmpty)
+            {
+                _internalTextUpdate = true;
+                richTextBox1.Text = " ";
+                _internalTextUpdate = false;
+            }
+
             richTextBox1.Font = new Font(richTextBox1.Font.FontFamily, size);
             richTextBox2.Font = new Font(richTextBox2.Font.FontFamily, size);
             lineNumberBox.Font = new Font(richTextBox1.Font.FontFamily, size);
+
+            richTextBox1.Update();
+            richTextBox1.Refresh();
+            Application.DoEvents();
+
             UpdateLineNumberWidth();
+
+            if (wasEmpty)
+            {
+                _internalTextUpdate = true;
+                richTextBox1.Clear();
+                _internalTextUpdate = false;
+            }
         }
+
 
         private void File_DragEnter(object sender, DragEventArgs e)
         {
@@ -404,14 +512,26 @@ namespace compiles_lab_1
 
         private void File_DragDrop(object sender, DragEventArgs e)
         {
+            if (!e.Data.GetDataPresent(DataFormats.FileDrop))
+                return;
+
             string[] files = (string[])e.Data.GetData(DataFormats.FileDrop);
 
-            if (files.Length > 0)
+            foreach (var path in files)
             {
-                string path = files[0];
+                if (!CanCreateNewDocument())
+                    break;
+
                 OpenFileFromPath(path);
-                richTextBox1.Enabled = true;
             }
+
+            richTextBox1.Enabled = currentDocument != null;
+        }
+
+        private bool IsFileAlreadyOpen(string path)
+        {
+            return documents.Any(d => d.FilePath != null &&
+                                      string.Equals(d.FilePath, path, StringComparison.OrdinalIgnoreCase));
         }
 
         private void SyncScroll()
@@ -430,6 +550,46 @@ namespace compiles_lab_1
                 IntPtr.Zero
             );
         }
+
+        private void UpdateStatus()
+        {
+            if (currentDocument != null)
+            {
+                statusFile.Text = $"{Strings.StatusFile} {currentDocument.Title}" + (currentDocument.IsModified ? " *" : "");
+
+                int index = richTextBox1.SelectionStart;
+                int line = richTextBox1.GetLineFromCharIndex(index) + 1;
+                int col = index - richTextBox1.GetFirstCharIndexOfCurrentLine() + 1;
+
+                statusPosition.Text = $"{Strings.StatusLine} {line}, {Strings.StatusColumn} {col}";
+                statusLines.Text = $"{Strings.StatusLines} {richTextBox1.Lines.Length}";
+
+                if (currentDocument.IsModified)
+                {
+                    int textBytes = Encoding.UTF8.GetByteCount(richTextBox1.Text);
+                    statusSize.Text = $"{Strings.StatusSize} {textBytes} {Strings.BytesUnsaved}";
+                }
+                else if (currentDocument.FilePath != null)
+                {
+                    long size = new FileInfo(currentDocument.FilePath).Length;
+                    statusSize.Text = $"{Strings.StatusSize} {size} {Strings.Bytes}";
+                }
+                else
+                {
+                    statusSize.Text = $"{Strings.StatusSize} -";
+                }
+            }
+            else
+            {
+                statusFile.Text = $"{Strings.StatusFile} -";
+                statusPosition.Text = $"{Strings.StatusLine} -";
+                statusLines.Text = $"{Strings.StatusLines} -";
+                statusSize.Text = $"{Strings.StatusSize} -";
+            }
+
+            statusLang.Text = $"{Strings.StatusLang} {InputLanguage.CurrentInputLanguage.Culture.TwoLetterISOLanguageName.ToUpper()}";
+        }
+
 
         private void UndoText(object sender, EventArgs e)
         {
