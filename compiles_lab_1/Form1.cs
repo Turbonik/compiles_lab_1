@@ -142,7 +142,7 @@ namespace compiles_lab_1
             }
 
             foreach (var doc in documents)
-            {
+            { 
                 var grid = doc.ScannerGrid;
                 if (grid != null)
                 {
@@ -151,7 +151,11 @@ namespace compiles_lab_1
                     grid.Columns["Text"].HeaderText = Strings.Lexeme;
                     grid.Columns["Location"].HeaderText = Strings.Location;
                 }
+                doc.ScannerGrid?.Rows.Clear();
+                doc.LastScan = null;
+ 
             }
+
 
 
             if (index >= 0 && index < documents.Count)
@@ -232,7 +236,7 @@ namespace compiles_lab_1
             SaveToolStripMenuItem.Click += SaveFile;
             SaveAsToolStripMenuItem.Click += SaveFileAs;
             ExitToolStripMenuItem.Click += ExitApp;
-
+             
             CancelToolStripMenuItem.Click += UndoText;
             RepeatToolStripMenuItem.Click += RedoText;
             CutToolStripMenuItem.Click += CutText;
@@ -291,9 +295,11 @@ namespace compiles_lab_1
                 int scrollPos = GetScrollPos(richTextBox1.Handle, SB_VERT);
  
                 currentDocument?.UndoRedoManager?.OnTextChanged(richTextBox1);
- 
+
                 if (currentDocument != null)
+                {
                     currentDocument.IsModified = true;
+                }
 
                 UpdateLineNumbers();
  
@@ -309,6 +315,11 @@ namespace compiles_lab_1
 
             };
 
+        }
+
+        private void RichTextBox1_TextChanged(object? sender, EventArgs e)
+        {
+            throw new NotImplementedException();
         }
 
         private void HotKeysBinder()
