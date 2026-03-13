@@ -10,7 +10,7 @@ namespace compiles_lab_1.Core
         public static ScanResult Analyze(string source)
         {
             var result = new ScanResult();
-
+    
             int line = 1;
             int col = 1;
             int i = 0;

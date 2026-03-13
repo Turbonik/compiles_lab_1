@@ -30,7 +30,7 @@ namespace compiles_lab_1.Core
         public int StartColumn { get; set; } 
         public int EndColumn { get; set; }  
     }
-
+    
     public class LexicalError
     {
         public string Message { get; set; }
