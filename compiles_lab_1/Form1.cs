@@ -11,6 +11,7 @@ using System.Windows.Forms;
 using System.ComponentModel;
 using compiles_lab_1.Core;
 using static System.Runtime.InteropServices.JavaScript.JSType;
+using System.Diagnostics;
 
 namespace compiles_lab_1
 {
@@ -56,12 +57,24 @@ namespace compiles_lab_1
         public Form1()
         {
             InitializeComponent();
- 
+
+            this.KeyPreview = true;
             fileManager = new FileManager();
+
             AttachEvents();
             HotKeysBinder();
+
             this.Resize += (s, e) => ScaleUI();
 
+        }
+
+        private void Form1_KeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.KeyCode == Keys.F7)
+            {
+                RunSyntaxAnalysis(richTextBox1.Text);
+                e.Handled = true;
+            }
         }
 
         private void ScaleUI()
@@ -283,8 +296,7 @@ namespace compiles_lab_1
                     CloseDocument(currentDocument);
             };
 
-         
-
+            this.KeyDown += new System.Windows.Forms.KeyEventHandler(this.Form1_KeyDown);
 
             richTextBox1.TextChanged += (s, e) =>
             {
@@ -922,6 +934,38 @@ namespace compiles_lab_1
                 currentDocument.SelectedResultsTabIndex = tabControlResults.SelectedIndex;
         }
 
+        private void RunSyntaxAnalysis(string code)
+        {
+            var psi = new ProcessStartInfo
+            {
+                FileName = Path.Combine(Application.StartupPath, "parser.exe"),
+                RedirectStandardInput = true,
+                RedirectStandardOutput = true,
+                RedirectStandardError = true,
+                UseShellExecute = false,
+                CreateNoWindow = true
+            };
+
+            using (var proc = Process.Start(psi))
+            {
+                proc.StandardInput.Write(code);
+                proc.StandardInput.Close();
+
+                string output = proc.StandardOutput.ReadToEnd();
+                string error = proc.StandardError.ReadToEnd();
+
+                proc.WaitForExit();
+
+                if (proc.ExitCode == 0)
+                {
+                    MessageBox.Show("Синтаксический анализ: OK");
+                }
+                else
+                {
+                    MessageBox.Show("Синтаксическая ошибка:\n" + error);
+                }
+            }
+        }
 
     }
 }
