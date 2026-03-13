@@ -10,7 +10,7 @@ using System.Threading;
 using System.Windows.Forms;
 using System.ComponentModel;
 using compiles_lab_1.Core;
-using static System.Runtime.InteropServices.JavaScript.JSType;
+ 
 using System.Diagnostics;
 
 namespace compiles_lab_1
