@@ -25,15 +25,6 @@ namespace compiles_lab_1
             splitContainerLines = new SplitContainer();
             lineNumberBox = new RichTextBox();
             richTextBox1 = new RichTextBox();
-            tabControlResults = new TabControl();
-            tabPageResults = new TabPage();
-            richTextBox2 = new RichTextBox();
-            tabPageErrors = new TabPage();
-            dataGridViewErrors = new DataGridView();
-            dataGridViewTextBoxColumn1 = new DataGridViewTextBoxColumn();
-            dataGridViewTextBoxColumn2 = new DataGridViewTextBoxColumn();
-            dataGridViewTextBoxColumn3 = new DataGridViewTextBoxColumn();
-            dataGridViewTextBoxColumn4 = new DataGridViewTextBoxColumn();
             menuStrip1 = new MenuStrip();
             fileMenu = new ToolStripMenuItem();
             CreateToolStripMenuItem = new ToolStripMenuItem();
@@ -87,6 +78,14 @@ namespace compiles_lab_1
             statusLines = new ToolStripStatusLabel();
             statusSize = new ToolStripStatusLabel();
             statusLang = new ToolStripStatusLabel();
+  
+ 
+            dataGridViewTextBoxColumn4 = new DataGridViewTextBoxColumn();
+            dataGridViewTextBoxColumn3 = new DataGridViewTextBoxColumn();
+            dataGridViewTextBoxColumn2 = new DataGridViewTextBoxColumn();
+            dataGridViewTextBoxColumn1 = new DataGridViewTextBoxColumn();
+            tabPageResults = new TabPage();
+            tabControlResults = new TabControl();
             ((System.ComponentModel.ISupportInitialize)splitContainer1).BeginInit();
             splitContainer1.Panel1.SuspendLayout();
             splitContainer1.Panel2.SuspendLayout();
@@ -95,15 +94,13 @@ namespace compiles_lab_1
             splitContainerLines.Panel1.SuspendLayout();
             splitContainerLines.Panel2.SuspendLayout();
             splitContainerLines.SuspendLayout();
-            tabControlResults.SuspendLayout();
-            tabPageResults.SuspendLayout();
-            tabPageErrors.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)dataGridViewErrors).BeginInit();
             menuStrip1.SuspendLayout();
             toolStrip1.SuspendLayout();
             tabContextMenu.SuspendLayout();
             tableLayoutPanelMain.SuspendLayout();
             statusStrip.SuspendLayout();
+            tabPageResults.SuspendLayout();
+            tabControlResults.SuspendLayout();
             SuspendLayout();
             // 
             // splitContainer1
@@ -149,66 +146,6 @@ namespace compiles_lab_1
             // 
             resources.ApplyResources(richTextBox1, "richTextBox1");
             richTextBox1.Name = "richTextBox1";
-            // 
-            // tabControlResults
-            // 
-            resources.ApplyResources(tabControlResults, "tabControlResults");
-            tabControlResults.Controls.Add(tabPageResults);
-            tabControlResults.Controls.Add(tabPageErrors);
-            tabControlResults.Name = "tabControlResults";
-            tabControlResults.SelectedIndex = 0;
-            // 
-            // tabPageResults
-            // 
-            resources.ApplyResources(tabPageResults, "tabPageResults");
-            tabPageResults.Controls.Add(richTextBox2);
-            tabPageResults.Name = "tabPageResults";
-            // 
-            // richTextBox2
-            // 
-            resources.ApplyResources(richTextBox2, "richTextBox2");
-            richTextBox2.Name = "richTextBox2";
-            // 
-            // tabPageErrors
-            // 
-            resources.ApplyResources(tabPageErrors, "tabPageErrors");
-            tabPageErrors.Controls.Add(dataGridViewErrors);
-            tabPageErrors.Name = "tabPageErrors";
-            // 
-            // dataGridViewErrors
-            // 
-            resources.ApplyResources(dataGridViewErrors, "dataGridViewErrors");
-            dataGridViewErrors.AllowUserToAddRows = false;
-            dataGridViewErrors.AllowUserToDeleteRows = false;
-            dataGridViewErrors.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
-            dataGridViewErrors.Columns.AddRange(new DataGridViewColumn[] { dataGridViewTextBoxColumn1, dataGridViewTextBoxColumn2, dataGridViewTextBoxColumn3, dataGridViewTextBoxColumn4 });
-            dataGridViewErrors.Name = "dataGridViewErrors";
-            dataGridViewErrors.ReadOnly = true;
-            dataGridViewErrors.RowHeadersVisible = false;
-            // 
-            // dataGridViewTextBoxColumn1
-            // 
-            resources.ApplyResources(dataGridViewTextBoxColumn1, "dataGridViewTextBoxColumn1");
-            dataGridViewTextBoxColumn1.Name = "dataGridViewTextBoxColumn1";
-            dataGridViewTextBoxColumn1.ReadOnly = true;
-            // 
-            // dataGridViewTextBoxColumn2
-            // 
-            resources.ApplyResources(dataGridViewTextBoxColumn2, "dataGridViewTextBoxColumn2");
-            dataGridViewTextBoxColumn2.Name = "dataGridViewTextBoxColumn2";
-            dataGridViewTextBoxColumn2.ReadOnly = true;
-            // 
-            // dataGridViewTextBoxColumn3
-            // 
-            resources.ApplyResources(dataGridViewTextBoxColumn3, "dataGridViewTextBoxColumn3");
-            dataGridViewTextBoxColumn3.Name = "dataGridViewTextBoxColumn3";
-            dataGridViewTextBoxColumn3.ReadOnly = true;
-            // 
-            // dataGridViewTextBoxColumn4
-            // 
-            resources.ApplyResources(dataGridViewTextBoxColumn4, "dataGridViewTextBoxColumn4");
-            dataGridViewTextBoxColumn4.Name = "dataGridViewTextBoxColumn4";
-            dataGridViewTextBoxColumn4.ReadOnly = true;
             // 
             // menuStrip1
             // 
@@ -499,6 +436,43 @@ namespace compiles_lab_1
             resources.ApplyResources(statusLang, "statusLang");
             statusLang.Name = "statusLang";
             // 
+            // dataGridViewTextBoxColumn4
+            // 
+            resources.ApplyResources(dataGridViewTextBoxColumn4, "dataGridViewTextBoxColumn4");
+            dataGridViewTextBoxColumn4.Name = "dataGridViewTextBoxColumn4";
+            dataGridViewTextBoxColumn4.ReadOnly = true;
+            // 
+            // dataGridViewTextBoxColumn3
+            // 
+            resources.ApplyResources(dataGridViewTextBoxColumn3, "dataGridViewTextBoxColumn3");
+            dataGridViewTextBoxColumn3.Name = "dataGridViewTextBoxColumn3";
+            dataGridViewTextBoxColumn3.ReadOnly = true;
+            // 
+            // dataGridViewTextBoxColumn2
+            // 
+            resources.ApplyResources(dataGridViewTextBoxColumn2, "dataGridViewTextBoxColumn2");
+            dataGridViewTextBoxColumn2.Name = "dataGridViewTextBoxColumn2";
+            dataGridViewTextBoxColumn2.ReadOnly = true;
+            // 
+            // dataGridViewTextBoxColumn1
+            // 
+            resources.ApplyResources(dataGridViewTextBoxColumn1, "dataGridViewTextBoxColumn1");
+            dataGridViewTextBoxColumn1.Name = "dataGridViewTextBoxColumn1";
+            dataGridViewTextBoxColumn1.ReadOnly = true;
+            // 
+            // tabPageResults
+            // 
+            resources.ApplyResources(tabPageResults, "tabPageResults");
+            tabPageResults.Name = "tabPageResults";
+ 
+            // 
+            // tabControlResults
+            // 
+            resources.ApplyResources(tabControlResults, "tabControlResults");
+            tabControlResults.Controls.Add(tabPageResults);
+            tabControlResults.Name = "tabControlResults";
+            tabControlResults.SelectedIndex = 0;
+            // 
             // Form1
             // 
             resources.ApplyResources(this, "$this");
@@ -514,10 +488,6 @@ namespace compiles_lab_1
             splitContainerLines.Panel2.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)splitContainerLines).EndInit();
             splitContainerLines.ResumeLayout(false);
-            tabControlResults.ResumeLayout(false);
-            tabPageResults.ResumeLayout(false);
-            tabPageErrors.ResumeLayout(false);
-            ((System.ComponentModel.ISupportInitialize)dataGridViewErrors).EndInit();
             menuStrip1.ResumeLayout(false);
             menuStrip1.PerformLayout();
             toolStrip1.ResumeLayout(false);
@@ -527,6 +497,8 @@ namespace compiles_lab_1
             tableLayoutPanelMain.PerformLayout();
             statusStrip.ResumeLayout(false);
             statusStrip.PerformLayout();
+            tabPageResults.ResumeLayout(false);
+            tabControlResults.ResumeLayout(false);
             ResumeLayout(false);
             PerformLayout();
 
@@ -562,12 +534,6 @@ namespace compiles_lab_1
 
         private SplitContainer splitContainer1;
         private RichTextBox richTextBox1;
-        private RichTextBox richTextBox2;
-
-        private TabControl tabControlResults;
-        private TabPage tabPageResults;
-        private TabPage tabPageErrors;
-        private DataGridView dataGridViewErrors;
 
         private TableLayoutPanel tableLayoutPanelMain;
         private SplitContainer splitContainerLines;
@@ -600,10 +566,6 @@ namespace compiles_lab_1
 
         private ToolStripMenuItem TextSizeMenuItem;
         private ToolStripComboBox TextSizeComboBox;
-        private DataGridViewTextBoxColumn dataGridViewTextBoxColumn1;
-        private DataGridViewTextBoxColumn dataGridViewTextBoxColumn2;
-        private DataGridViewTextBoxColumn dataGridViewTextBoxColumn3;
-        private DataGridViewTextBoxColumn dataGridViewTextBoxColumn4;
         private System.Windows.Forms.ToolStripMenuItem CloseTabMenuItem;
 
         private StatusStrip statusStrip;
@@ -611,6 +573,12 @@ namespace compiles_lab_1
         private ToolStripStatusLabel statusPosition;
         private ToolStripStatusLabel statusLines;
         private ToolStripStatusLabel statusSize;
-
+        private TabControl tabControlResults;
+        private TabPage tabPageResults;
+    
+        private DataGridViewTextBoxColumn dataGridViewTextBoxColumn1;
+        private DataGridViewTextBoxColumn dataGridViewTextBoxColumn2;
+        private DataGridViewTextBoxColumn dataGridViewTextBoxColumn3;
+        private DataGridViewTextBoxColumn dataGridViewTextBoxColumn4;
     }
 }

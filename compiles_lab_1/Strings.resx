@@ -177,4 +177,55 @@
   <data name="StatusLines" xml:space="preserve">
     <value>Строк:</value>
   </data>
+  <data name="Run" xml:space="preserve">
+    <value>Пожалуйста, сначала создайте вкладку!</value>
+  </data>
+  <data name="RunHead" xml:space="preserve">
+    <value>Документ не создан</value>
+  </data>
+  <data name="Separator" xml:space="preserve">
+    <value>разделитель</value>
+  </data>
+  <data name="Space" xml:space="preserve">
+    <value>пробел</value>
+  </data>
+  <data name="Integer" xml:space="preserve">
+    <value>целое без знака</value>
+  </data>
+  <data name="Keyword" xml:space="preserve">
+    <value>ключевое слово</value>
+  </data>
+  <data name="DeclareOperator" xml:space="preserve">
+    <value>оператор объявления</value>
+  </data>
+  <data name="EqualsOperator" xml:space="preserve">
+    <value>оператор присваивания</value>
+  </data>
+  <data name="EndOperator" xml:space="preserve">
+    <value>конец оператора</value>
+  </data>
+  <data name="SubstractionOperator" xml:space="preserve">
+    <value>оператор вычитания</value>
+  </data>
+  <data name="InvalidLexeme" xml:space="preserve">
+    <value>Недопустимая лексема</value>
+  </data>
+  <data name="Error" xml:space="preserve">
+    <value>ошибка</value>
+  </data>
+  <data name="CondCode" xml:space="preserve">
+    <value>Условный код</value>
+  </data>
+  <data name="LexemeType" xml:space="preserve">
+    <value>Тип лексемы</value>
+  </data>
+  <data name="Lexeme" xml:space="preserve">
+    <value>Лексема</value>
+  </data>
+  <data name="Location" xml:space="preserve">
+    <value>Местоположение</value>
+  </data>
+  <data name="LineLowered" xml:space="preserve">
+    <value>строка</value>
+  </data>
 </root>

@@ -30,17 +30,24 @@ namespace compiles_lab_1
         const int SB_THUMBPOSITION = 4;
 
         private FileManager fileManager;
- 
+
 
         private class DocumentTab
         {
+            public int SelectedResultsTabIndex = 0;
+
             public string Title;
             public string FilePath;
             public string Text;
             public bool IsModified;
-            public UndoRedoManager UndoManager;
+
+            public UndoRedoManager UndoRedoManager;
             public ToolStripButton Button;
+
+            public ScanResult LastScan;
+            public DataGridView ScannerGrid;
         }
+
 
         private readonly List<DocumentTab> documents = new();
         private DocumentTab currentDocument;
@@ -100,9 +107,7 @@ namespace compiles_lab_1
                 item.Font = new Font(item.Font.FontFamily, 9 * scale);
 
             tabControlResults.Font = new Font(tabControlResults.Font.FontFamily, 10 * scale);
-
-            dataGridViewErrors.Font = new Font("Segoe UI", 9);
-
+ 
         }
 
 
@@ -136,6 +141,19 @@ namespace compiles_lab_1
                 tabsStrip.Items.Add(btn);
             }
 
+            foreach (var doc in documents)
+            {
+                var grid = doc.ScannerGrid;
+                if (grid != null)
+                {
+                    grid.Columns["Code"].HeaderText = Strings.CondCode;
+                    grid.Columns["Type"].HeaderText = Strings.LexemeType;
+                    grid.Columns["Text"].HeaderText = Strings.Lexeme;
+                    grid.Columns["Location"].HeaderText = Strings.Location;
+                }
+            }
+
+
             if (index >= 0 && index < documents.Count)
             {
                 currentDocument = documents[index];
@@ -150,6 +168,8 @@ namespace compiles_lab_1
                 richTextBox1.Clear();
             }
 
+
+
             richTextBox1.Enabled = currentDocument != null;
 
             SetEditorFontSize(editorFontSize);
@@ -163,9 +183,11 @@ namespace compiles_lab_1
         {
             if (!string.IsNullOrEmpty(control.Name) &&
                 control != richTextBox1 &&
-                control != richTextBox2 &&
-                control != lineNumberBox)
+                control != lineNumberBox &&
+                control is not DataGridView)
+            {
                 res.ApplyResources(control, control.Name);
+            }
 
             if (control is MenuStrip ms)
                 foreach (ToolStripItem item in ms.Items)
@@ -178,6 +200,7 @@ namespace compiles_lab_1
             foreach (Control child in control.Controls)
                 ApplyResourcesRecursive(child, res);
         }
+
 
 
         private void ApplyResourcesToolStripItem(ToolStripItem item, ComponentResourceManager res)
@@ -202,6 +225,8 @@ namespace compiles_lab_1
             localizationMenu.DropDownItems.Add("Русский", null, (s, e) => SetLanguage("ru"));
             this.InputLanguageChanged += (s, e) => UpdateStatus();
 
+            tabControlResults.SelectedIndexChanged += tabControlResults_SelectedIndexChanged;
+
             CreateToolStripMenuItem.Click += CreateFile;
             OpenToolStripMenuItem.Click += OpenFile;
             SaveToolStripMenuItem.Click += SaveFile;
@@ -224,13 +249,12 @@ namespace compiles_lab_1
             toolStripButton10.Click += CopyText;
             toolStripButton9.Click += CutText;
             toolStripButton8.Click += PasteText;
-            toolStripButton7.Click += RunAnalysis;
             runMenu.Click += RunAnalysis;
 
             CallHelpToolStripMenuItem.Click += CallHelp;
             AboutToolStripMenuItem.Click += CallAbout;
-            toolStripButton7.Click += CallHelp;    
-            toolStripButton6.Click += CallAbout; 
+            toolStripButton6.Click += CallHelp;    
+            toolStripButton1.Click += CallAbout; 
 
             richTextBox1.VScroll += (s, e) => { SyncScroll(); UpdateLineNumberWidth(); };
 
@@ -255,6 +279,8 @@ namespace compiles_lab_1
                     CloseDocument(currentDocument);
             };
 
+         
+
 
             richTextBox1.TextChanged += (s, e) =>
             {
@@ -264,7 +290,7 @@ namespace compiles_lab_1
  
                 int scrollPos = GetScrollPos(richTextBox1.Handle, SB_VERT);
  
-                currentDocument?.UndoManager?.OnTextChanged(richTextBox1);
+                currentDocument?.UndoRedoManager?.OnTextChanged(richTextBox1);
  
                 if (currentDocument != null)
                     currentDocument.IsModified = true;
@@ -302,9 +328,9 @@ namespace compiles_lab_1
             AboutToolStripMenuItem.ShortcutKeys = Keys.Control | Keys.F1;
             runMenu.ShortcutKeys = Keys.F5;
 
-            toolStripButton7.Click += (s, e) => CallHelpToolStripMenuItem.PerformClick();
-            toolStripButton6.Click += (s, e) => AboutToolStripMenuItem.PerformClick();
-            toolStripButton1.Click += (s, e) => runMenu.PerformClick();
+            toolStripButton6.Click += (s, e) => CallHelpToolStripMenuItem.PerformClick();
+            toolStripButton1.Click += (s, e) => AboutToolStripMenuItem.PerformClick();
+            toolStripButton7.Click += (s, e) => runMenu.PerformClick();
 
         }
 
@@ -318,8 +344,10 @@ namespace compiles_lab_1
                 FilePath = null,
                 Text = "",
                 IsModified = false,
-                UndoManager = new UndoRedoManager()
+                UndoRedoManager = new UndoRedoManager(),
+                ScannerGrid = CreateScannerGrid()
             };
+
 
             var btn = new ToolStripButton(doc.Title);
             btn.MouseUp += TabMouseUp;
@@ -331,8 +359,49 @@ namespace compiles_lab_1
             richTextBox1.Enabled = true;
  
             SwitchToDocument(doc);
-            doc.UndoManager.ResetInitial(richTextBox1);
+            doc.UndoRedoManager.ResetInitial(richTextBox1);
         }
+
+        private DataGridView CreateScannerGrid()
+        {
+            var grid = new DataGridView();
+            grid.Dock = DockStyle.Fill;
+            grid.ReadOnly = true;
+            grid.AllowUserToAddRows = false;
+            grid.AllowUserToDeleteRows = false;
+            grid.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
+            grid.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+            grid.DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleCenter;
+            grid.ColumnHeadersDefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleCenter;
+            grid.AllowUserToResizeColumns = false;
+ 
+            grid.Font = new Font("Segoe UI", 10);
+
+            grid.Columns.Add("Code", Strings.CondCode);
+            grid.Columns.Add("Type", Strings.LexemeType);
+            grid.Columns.Add("Text", Strings.Lexeme);
+            grid.Columns.Add("Location", Strings.Location);
+
+            grid.Columns["Code"].Width = 120; 
+            grid.Columns["Code"].AutoSizeMode = DataGridViewAutoSizeColumnMode.None;
+
+            grid.CellClick += ScannerGrid_CellClick;
+
+            grid.RowPrePaint += (s, e) =>
+            {
+                var row = grid.Rows[e.RowIndex];
+                if (row.Tag is Lexeme lx && lx.Code == LexemeCode.Error)
+                {
+                    row.DefaultCellStyle.BackColor = Color.MistyRose;
+                    row.DefaultCellStyle.ForeColor = Color.DarkRed;
+                    row.DefaultCellStyle.Font = new Font(grid.Font, FontStyle.Bold);
+                }
+            };
+
+
+            return grid;
+        }
+
 
 
         private void TabMouseUp(object sender, MouseEventArgs e)
@@ -360,15 +429,19 @@ namespace compiles_lab_1
             richTextBox1.Text = doc.Text;
             _internalTextUpdate = false;
 
-            richTextBox2.Clear();
+            tabPageResults.Controls.Clear();
+            tabPageResults.Controls.Add(doc.ScannerGrid);
+
+            tabControlResults.SelectedIndex = 0;  
 
             foreach (ToolStripButton b in tabsStrip.Items)
                 b.BackColor = SystemColors.Control;
 
             doc.Button.BackColor = Color.LightGray;
             UpdateStatus();
-
         }
+
+
 
 
 
@@ -419,9 +492,10 @@ namespace compiles_lab_1
                 FilePath = path,
                 Text = text,
                 IsModified = false,
-                UndoManager = new UndoRedoManager()
+                UndoRedoManager = new UndoRedoManager(),
+                ScannerGrid = CreateScannerGrid()
             };
-
+ 
 
             var btn = new ToolStripButton(newDoc.Title);
             btn.MouseUp += TabMouseUp;
@@ -432,7 +506,7 @@ namespace compiles_lab_1
             tabsStrip.Items.Add(btn);
 
             SwitchToDocument(newDoc);
-            newDoc.UndoManager.ResetInitial(richTextBox1);
+            newDoc.UndoRedoManager.ResetInitial(richTextBox1);
         }
 
 
@@ -492,7 +566,11 @@ namespace compiles_lab_1
         {
             if (doc.IsModified)
             {
-                var result = MessageBox.Show(Strings.SaveChanges, Strings.CloseDocument, MessageBoxButtons.YesNoCancel, MessageBoxIcon.Question);
+                var result = MessageBox.Show(
+                    Strings.SaveChanges,
+                    Strings.CloseDocument,
+                    MessageBoxButtons.YesNoCancel,
+                    MessageBoxIcon.Question);
 
                 if (result == DialogResult.Cancel)
                     return;
@@ -503,19 +581,29 @@ namespace compiles_lab_1
                     SaveFile(null, null);
                 }
             }
+ 
+            if (currentDocument == doc)
+            {
+                tabPageResults.Controls.Clear();
+            }
 
             tabsStrip.Items.Remove(doc.Button);
             documents.Remove(doc);
 
             if (documents.Count > 0)
+            {
                 SwitchToDocument(documents.Last());
+            }
             else
             {
                 currentDocument = null;
                 richTextBox1.Clear();
                 richTextBox1.Enabled = false;
+ 
+                tabPageResults.Controls.Clear();
             }
         }
+
 
         private void Form1_FormClosing(object sender, FormClosingEventArgs e)
         {
@@ -580,7 +668,6 @@ namespace compiles_lab_1
             }
 
             richTextBox1.Font = new Font(richTextBox1.Font.FontFamily, size);
-            richTextBox2.Font = new Font(richTextBox2.Font.FontFamily, size);
             lineNumberBox.Font = new Font(richTextBox1.Font.FontFamily, size);
 
             richTextBox1.Update();
@@ -690,18 +777,40 @@ namespace compiles_lab_1
 
         private void UndoText(object sender, EventArgs e)
         {
-            currentDocument?.UndoManager?.Undo(richTextBox1);
+            currentDocument?.UndoRedoManager?.Undo(richTextBox1);
         }
 
         private void RedoText(object sender, EventArgs e)
         {
-            currentDocument?.UndoManager?.Redo(richTextBox1);
+            currentDocument?.UndoRedoManager?.Redo(richTextBox1);
         }
 
-        private void CutText(object sender, EventArgs e) => richTextBox1.Cut();
-        private void CopyText(object sender, EventArgs e) => richTextBox1.Copy();
+        private void CutText(object sender, EventArgs e)
+        {
+            if (currentDocument == null)
+            {
+                MessageBox.Show(Strings.Run, Strings.RunHead, MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+            richTextBox1.Cut();
+        }
+        private void CopyText(object sender, EventArgs e)
+        {
+            if (currentDocument == null)
+            {
+                MessageBox.Show(Strings.Run, Strings.RunHead, MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+            richTextBox1.Copy();
+        }
         private void PasteText(object sender, EventArgs e)
         {
+            if (currentDocument == null)
+            {
+                MessageBox.Show(Strings.Run, Strings.RunHead, MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+
             if (!Clipboard.ContainsImage())
                 richTextBox1.Paste();
         }
@@ -720,14 +829,88 @@ namespace compiles_lab_1
         private void RunAnalysis(object sender, EventArgs e)
         {
             if (currentDocument == null)
+            {
+                MessageBox.Show(Strings.Run, Strings.RunHead, MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+ 
+
+                string text = richTextBox1.Text;
+
+            var result = Scanner.Analyze(text);
+            currentDocument.LastScan = result;
+
+            FillScanner(result);
+
+            tabControlResults.SelectedIndex = 0;
+        }
+
+
+        private void FillScanner(ScanResult result)
+        {
+            if (currentDocument == null || currentDocument.ScannerGrid == null)
                 return;
 
-            string text = richTextBox1.Text;
-
-            string result = Scanner.Run(text);
-
-            richTextBox2.Text = result;
-        }
+            var grid = currentDocument.ScannerGrid;
+            grid.Rows.Clear();
  
+            var items = new List<Lexeme>(result.Lexemes);
+            items.Sort((a, b) =>
+            {
+                int cmp = a.Line.CompareTo(b.Line);
+                if (cmp != 0) return cmp;
+                return a.StartColumn.CompareTo(b.StartColumn);
+            });
+
+            foreach (var lex in items)
+            {
+                int rowIndex = grid.Rows.Add(
+                    (int)lex.Code,
+                    lex.Type,
+                    lex.Text,
+                    $"{Strings.LineLowered} {lex.Line}, {lex.StartColumn}-{lex.EndColumn}"
+                );
+
+                grid.Rows[rowIndex].Tag = lex;
+            }
+        }
+
+ 
+        private void ScannerGrid_CellClick(object sender, DataGridViewCellEventArgs e)
+        {
+            if (e.RowIndex < 0) return;
+
+            var grid = sender as DataGridView;
+            var lex = grid?.Rows[e.RowIndex].Tag as Lexeme;
+            if (lex == null) return;
+
+            int targetIndex = GetCharIndexFromLineColumn(lex.Line, lex.StartColumn);
+
+            richTextBox1.Focus();
+            richTextBox1.SelectionStart = targetIndex;
+            richTextBox1.SelectionLength = Math.Max(1, lex.EndColumn - lex.StartColumn + 1);
+        }
+
+
+
+        private int GetCharIndexFromLineColumn(int line, int column)
+        {
+            int index = 0;
+
+            for (int i = 0; i < line - 1; i++)
+                index += richTextBox1.Lines[i].Length + 1;  
+
+            index += column - 1;
+
+            return index;
+        }
+
+        private void tabControlResults_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            if (currentDocument != null)
+                currentDocument.SelectedResultsTabIndex = tabControlResults.SelectedIndex;
+        }
+
+
     }
 }

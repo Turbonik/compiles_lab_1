@@ -97,11 +97,56 @@ namespace compiles_lab_1 {
         }
         
         /// <summary>
+        ///   Ищет локализованную строку, похожую на Условный код.
+        /// </summary>
+        internal static string CondCode {
+            get {
+                return ResourceManager.GetString("CondCode", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Ищет локализованную строку, похожую на оператор объявления.
+        /// </summary>
+        internal static string DeclareOperator {
+            get {
+                return ResourceManager.GetString("DeclareOperator", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Ищет локализованную строку, похожую на конец оператора.
+        /// </summary>
+        internal static string EndOperator {
+            get {
+                return ResourceManager.GetString("EndOperator", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Ищет локализованную строку, похожую на Английский.
         /// </summary>
         internal static string EngLang {
             get {
                 return ResourceManager.GetString("EngLang", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Ищет локализованную строку, похожую на оператор присваивания.
+        /// </summary>
+        internal static string EqualsOperator {
+            get {
+                return ResourceManager.GetString("EqualsOperator", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Ищет локализованную строку, похожую на ошибка.
+        /// </summary>
+        internal static string Error {
+            get {
+                return ResourceManager.GetString("Error", resourceCulture);
             }
         }
         
@@ -124,11 +169,74 @@ namespace compiles_lab_1 {
         }
         
         /// <summary>
+        ///   Ищет локализованную строку, похожую на целое без знака.
+        /// </summary>
+        internal static string Integer {
+            get {
+                return ResourceManager.GetString("Integer", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Ищет локализованную строку, похожую на Недопустимая лексема.
+        /// </summary>
+        internal static string InvalidLexeme {
+            get {
+                return ResourceManager.GetString("InvalidLexeme", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Ищет локализованную строку, похожую на ключевое слово.
+        /// </summary>
+        internal static string Keyword {
+            get {
+                return ResourceManager.GetString("Keyword", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Ищет локализованную строку, похожую на Лексема.
+        /// </summary>
+        internal static string Lexeme {
+            get {
+                return ResourceManager.GetString("Lexeme", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Ищет локализованную строку, похожую на Тип лексемы.
+        /// </summary>
+        internal static string LexemeType {
+            get {
+                return ResourceManager.GetString("LexemeType", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Ищет локализованную строку, похожую на Ограничение.
         /// </summary>
         internal static string Limit {
             get {
                 return ResourceManager.GetString("Limit", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Ищет локализованную строку, похожую на строка.
+        /// </summary>
+        internal static string LineLowered {
+            get {
+                return ResourceManager.GetString("LineLowered", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Ищет локализованную строку, похожую на Местоположение.
+        /// </summary>
+        internal static string Location {
+            get {
+                return ResourceManager.GetString("Location", resourceCulture);
             }
         }
         
@@ -147,6 +255,24 @@ namespace compiles_lab_1 {
         internal static string NewDocument {
             get {
                 return ResourceManager.GetString("NewDocument", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Ищет локализованную строку, похожую на Пожалуйста, сначала создайте вкладку!.
+        /// </summary>
+        internal static string Run {
+            get {
+                return ResourceManager.GetString("Run", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Ищет локализованную строку, похожую на Документ не создан.
+        /// </summary>
+        internal static string RunHead {
+            get {
+                return ResourceManager.GetString("RunHead", resourceCulture);
             }
         }
         
@@ -183,6 +309,24 @@ namespace compiles_lab_1 {
         internal static string Saving {
             get {
                 return ResourceManager.GetString("Saving", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Ищет локализованную строку, похожую на разделитель.
+        /// </summary>
+        internal static string Separator {
+            get {
+                return ResourceManager.GetString("Separator", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Ищет локализованную строку, похожую на пробел.
+        /// </summary>
+        internal static string Space {
+            get {
+                return ResourceManager.GetString("Space", resourceCulture);
             }
         }
         
@@ -237,6 +381,15 @@ namespace compiles_lab_1 {
         internal static string StatusSize {
             get {
                 return ResourceManager.GetString("StatusSize", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Ищет локализованную строку, похожую на оператор вычитания.
+        /// </summary>
+        internal static string SubstractionOperator {
+            get {
+                return ResourceManager.GetString("SubstractionOperator", resourceCulture);
             }
         }
     }

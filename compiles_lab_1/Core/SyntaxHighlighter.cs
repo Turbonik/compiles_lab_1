@@ -9,7 +9,7 @@ namespace compiles_lab_1.Core
     {
         private static readonly HashSet<string> keywords = new()
         {
-            "if", "for", "while", "else", "return", "int", "string", "bool", "void"
+            "int", "const", "val"
         };
 
         private static readonly char[] separators =

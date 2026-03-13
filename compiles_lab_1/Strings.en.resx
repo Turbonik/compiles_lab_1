@@ -177,4 +177,55 @@
   <data name="StatusLines" xml:space="preserve">
     <value>Lines:</value>
   </data>
+  <data name="Run" xml:space="preserve">
+    <value>Please, create document first!</value>
+  </data>
+  <data name="RunHead" xml:space="preserve">
+    <value>Document doesn`t exist</value>
+  </data>
+  <data name="Separator" xml:space="preserve">
+    <value>separator</value>
+  </data>
+  <data name="Space" xml:space="preserve">
+    <value>space</value>
+  </data>
+  <data name="Integer" xml:space="preserve">
+    <value>unsigned integer</value>
+  </data>
+  <data name="Keyword" xml:space="preserve">
+    <value>keyword</value>
+  </data>
+  <data name="DeclareOperator" xml:space="preserve">
+    <value>annotation operator</value>
+  </data>
+  <data name="EqualsOperator" xml:space="preserve">
+    <value>assign operator</value>
+  </data>
+  <data name="EndOperator" xml:space="preserve">
+    <value>end operator</value>
+  </data>
+  <data name="SubstractionOperator" xml:space="preserve">
+    <value>substraction operator</value>
+  </data>
+  <data name="InvalidLexeme" xml:space="preserve">
+    <value>invalid lexeme</value>
+  </data>
+  <data name="Error" xml:space="preserve">
+    <value>error</value>
+  </data>
+  <data name="CondCode" xml:space="preserve">
+    <value>Conditional code</value>
+  </data>
+  <data name="LexemeType" xml:space="preserve">
+    <value>Lexeme type</value>
+  </data>
+  <data name="Lexeme" xml:space="preserve">
+    <value>Lexeme</value>
+  </data>
+  <data name="Location" xml:space="preserve">
+    <value>Location</value>
+  </data>
+  <data name="LineLowered" xml:space="preserve">
+    <value>line</value>
+  </data>
 </root>
