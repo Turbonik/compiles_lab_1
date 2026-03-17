@@ -1,28 +1,21 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Text;
-using System.Windows.Forms;
 
 namespace compiles_lab_1.Core
 {
     public static class Scanner
     {
+        static bool IsLatinLetter(char c) =>
+            (c >= 'A' && c <= 'Z') ||
+            (c >= 'a' && c <= 'z');
+
         public static ScanResult Analyze(string source)
         {
             var result = new ScanResult();
-    
+
             int line = 1;
             int col = 1;
             int i = 0;
-
-            bool IsValidInteger(string text)
-            {
-                if (text == "0")
-                    return true;
-                if (text.Length > 1 && text[0] == '0')
-                    return false;
-                return true;
-            }
 
             while (i < source.Length)
             {
@@ -36,13 +29,13 @@ namespace compiles_lab_1.Core
                     continue;
                 }
 
-                if (ch == ' ')
+                if (ch == ' ' || ch == '\t')
                 {
                     result.Lexemes.Add(new Lexeme
                     {
                         Code = LexemeCode.Space,
                         Type = Strings.Separator,
-                        Text = $"({Strings.Space})",
+                        Text = "(space)",
                         Line = line,
                         StartColumn = col,
                         EndColumn = col
@@ -66,43 +59,26 @@ namespace compiles_lab_1.Core
 
                     string text = source.Substring(startIndex, i - startIndex);
 
-                    if (!IsValidInteger(text))
+                    result.Lexemes.Add(new Lexeme
                     {
-                        result.Lexemes.Add(new Lexeme
-                        {
-                            Code = LexemeCode.Error,
-                            Type = Strings.Error,
-                            Text = $"{Strings.InvalidLexeme} \"{text}\"",
-                            Line = line,
-                            StartColumn = startCol,
-                            EndColumn = col - 1
-                        });
-                    }
-                    else
-                    {
-                        result.Lexemes.Add(new Lexeme
-                        {
-                            Code = LexemeCode.Integer,
-                            Type = Strings.Integer,
-                            Text = text,
-                            Line = line,
-                            StartColumn = startCol,
-                            EndColumn = col - 1
-                        });
-                    }
+                        Code = LexemeCode.Integer,
+                        Type = Strings.Integer,
+                        Text = text,
+                        Line = line,
+                        StartColumn = startCol,
+                        EndColumn = col - 1
+                    });
 
                     continue;
                 }
 
-                if ((ch >= 'A' && ch <= 'Z') || (ch >= 'a' && ch <= 'z'))
+                if (IsLatinLetter(ch) || ch == '_')
                 {
                     int startCol = col;
                     int startIndex = i;
 
                     while (i < source.Length &&
-                          ((source[i] >= 'A' && source[i] <= 'Z') ||
-                           (source[i] >= 'a' && source[i] <= 'z') ||
-                           char.IsDigit(source[i])))
+                          (IsLatinLetter(source[i]) || char.IsDigit(source[i]) || source[i] == '_'))
                     {
                         i++;
                         col++;
@@ -110,23 +86,13 @@ namespace compiles_lab_1.Core
 
                     string word = source.Substring(startIndex, i - startIndex);
 
-                    LexemeCode code;
-
-                    switch (word)
+                    LexemeCode code = word switch
                     {
-                        case "Int":
-                            code = LexemeCode.KeywordInt;
-                            break;
-                        case "const":
-                            code = LexemeCode.KeywordConst;
-                            break;
-                        case "val":
-                            code = LexemeCode.KeywordVal;
-                            break;
-                        default:
-                            code = LexemeCode.Identifier;
-                            break;
-                    }
+                        "const" => LexemeCode.KeywordConst,
+                        "val" => LexemeCode.KeywordVal,
+                        "Int" => LexemeCode.KeywordInt,
+                        _ => LexemeCode.Identifier
+                    };
 
                     result.Lexemes.Add(new Lexeme
                     {
@@ -153,8 +119,7 @@ namespace compiles_lab_1.Core
                         EndColumn = col
                     });
 
-                    i++;
-                    col++;
+                    i++; col++;
                     continue;
                 }
 
@@ -170,8 +135,7 @@ namespace compiles_lab_1.Core
                         EndColumn = col
                     });
 
-                    i++;
-                    col++;
+                    i++; col++;
                     continue;
                 }
 
@@ -187,116 +151,38 @@ namespace compiles_lab_1.Core
                         EndColumn = col
                     });
 
-                    i++;
-                    col++;
+                    i++; col++;
                     continue;
                 }
 
                 if (ch == '-')
                 {
-                    int minusCol = col;
-                    int minusIndex = i;
-
-                    i++;
-                    col++;
-
-                    if (i >= source.Length || !char.IsDigit(source[i]))
-                    {
-                        result.Lexemes.Add(new Lexeme
-                        {
-                            Code = LexemeCode.Minus,
-                            Type = Strings.SubstractionOperator,
-                            Text = "-",
-                            Line = line,
-                            StartColumn = minusCol,
-                            EndColumn = minusCol
-                        });
-
-                        continue;
-                    }
-
-                    int numStartCol = col;
-                    int numStartIndex = i;
-
-                    while (i < source.Length && char.IsDigit(source[i]))
-                    {
-                        i++;
-                        col++;
-                    }
-
-                    string number = source.Substring(numStartIndex, i - numStartIndex);
-                    string full = "-" + number;
-
-                    if (!IsValidInteger(number) || number == "0")
-                    {
-                        result.Lexemes.Add(new Lexeme
-                        {
-                            Code = LexemeCode.Error,
-                            Type = Strings.Error,
-                            Text = $"{Strings.InvalidLexeme} \"{full}\"",
-                            Line = line,
-                            StartColumn = minusCol,
-                            EndColumn = minusCol + full.Length - 1
-                        });
-
-                        continue;
-                    }
-
                     result.Lexemes.Add(new Lexeme
                     {
                         Code = LexemeCode.Minus,
                         Type = Strings.SubstractionOperator,
                         Text = "-",
                         Line = line,
-                        StartColumn = minusCol,
-                        EndColumn = minusCol
+                        StartColumn = col,
+                        EndColumn = col
                     });
 
-                    result.Lexemes.Add(new Lexeme
-                    {
-                        Code = LexemeCode.Integer,
-                        Type = Strings.Integer,
-                        Text = number,
-                        Line = line,
-                        StartColumn = numStartCol,
-                        EndColumn = col - 1
-                    });
-
+                    i++; col++;
                     continue;
                 }
-
-                int badStartCol = col;
-                int badStartIndex = i;
-
-                while (i < source.Length)
-                {
-                    char c = source[i];
-
-                    bool isValid =
-                        c == ' ' || c == '\n' ||
-                        char.IsDigit(c) ||
-                        (c >= 'A' && c <= 'Z') ||
-                        (c >= 'a' && c <= 'z') ||
-                        c == ':' || c == '=' || c == ';' || c == '-';
-
-                    if (isValid)
-                        break;
-
-                    i++;
-                    col++;
-                }
-
-                string bad = source.Substring(badStartIndex, i - badStartIndex);
 
                 result.Lexemes.Add(new Lexeme
                 {
                     Code = LexemeCode.Error,
                     Type = Strings.Error,
-                    Text = $"{Strings.InvalidLexeme} \"{bad}\"",
+                    Text = $"{Strings.InvalidLexeme} \"{ch}\"",
                     Line = line,
-                    StartColumn = badStartCol,
-                    EndColumn = badStartCol + bad.Length - 1
+                    StartColumn = col,
+                    EndColumn = col
                 });
+
+                i++;
+                col++;
             }
 
             return result;
