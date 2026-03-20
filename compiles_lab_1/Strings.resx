@@ -228,4 +228,7 @@
   <data name="LineLowered" xml:space="preserve">
     <value>строка</value>
   </data>
+  <data name="Identifier" xml:space="preserve">
+    <value>идентификатор</value>
+  </data>
 </root>

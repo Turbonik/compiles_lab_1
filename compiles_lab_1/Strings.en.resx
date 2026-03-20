@@ -228,4 +228,7 @@
   <data name="LineLowered" xml:space="preserve">
     <value>line</value>
   </data>
+  <data name="Identifier" xml:space="preserve">
+    <value>identifier</value>
+  </data>
 </root>

@@ -169,6 +169,15 @@ namespace compiles_lab_1 {
         }
         
         /// <summary>
+        ///   Ищет локализованную строку, похожую на идентификатор.
+        /// </summary>
+        internal static string Identifier {
+            get {
+                return ResourceManager.GetString("Identifier", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Ищет локализованную строку, похожую на целое без знака.
         /// </summary>
         internal static string Integer {
