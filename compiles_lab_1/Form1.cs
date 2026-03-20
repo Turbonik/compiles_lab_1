@@ -159,10 +159,7 @@ namespace compiles_lab_1
                 var grid = doc.ScannerGrid;
                 if (grid != null)
                 {
-                    grid.Columns["Code"].HeaderText = Strings.CondCode;
-                    grid.Columns["Type"].HeaderText = Strings.LexemeType;
-                    grid.Columns["Text"].HeaderText = Strings.Lexeme;
-                    grid.Columns["Location"].HeaderText = Strings.Location;
+ 
                 }
                 doc.ScannerGrid?.Rows.Clear();
                 doc.LastScan = null;
@@ -280,8 +277,13 @@ namespace compiles_lab_1
             TextSizeComboBox.SelectedIndexChanged += (s, e) =>
             {
                 if (float.TryParse(TextSizeComboBox.Text, out float size))
+                   {
                     SetEditorFontSize(size);
-            };
+                    SyntaxHighlighter.Highlight(richTextBox1);
+                   }
+
+                }
+                ;
 
             splitContainer1.Panel1.DragEnter += File_DragEnter;
             splitContainer1.Panel1.DragDrop += File_DragDrop;
@@ -400,13 +402,13 @@ namespace compiles_lab_1
  
             grid.Font = new Font("Segoe UI", 10);
 
-            grid.Columns.Add("Code", Strings.CondCode);
-            grid.Columns.Add("Type", Strings.LexemeType);
-            grid.Columns.Add("Text", Strings.Lexeme);
-            grid.Columns.Add("Location", Strings.Location);
+            grid.Columns.Add("Fragment", "Неверный фрагмент");
+            grid.Columns.Add("Location", "Местоположение");
+            grid.Columns.Add("Message", "Описание");
 
-            grid.Columns["Code"].Width = 120; 
-            grid.Columns["Code"].AutoSizeMode = DataGridViewAutoSizeColumnMode.None;
+
+            //grid.Columns["Code"].Width = 120; 
+            //grid.Columns["Code"].AutoSizeMode = DataGridViewAutoSizeColumnMode.None;
 
             grid.CellClick += ScannerGrid_CellClick;
 
@@ -705,6 +707,8 @@ namespace compiles_lab_1
                 richTextBox1.Clear();
                 _internalTextUpdate = false;
             }
+
+
         }
 
 
@@ -860,58 +864,60 @@ namespace compiles_lab_1
 
                 string text = richTextBox1.Text;
 
-            var result = Scanner.Analyze(text);
-            currentDocument.LastScan = result;
+            var scan = Scanner.Analyze(text);
+            var errors = Parser.Analyze(scan);
 
-            FillScanner(result);
+            FillParserErrors(errors);
+
 
             tabControlResults.SelectedIndex = 0;
         }
 
 
-        private void FillScanner(ScanResult result)
+        private void FillParserErrors(List<ParseError> errors)
         {
             if (currentDocument == null || currentDocument.ScannerGrid == null)
                 return;
 
             var grid = currentDocument.ScannerGrid;
             grid.Rows.Clear();
- 
-            var items = new List<Lexeme>(result.Lexemes);
-            items.Sort((a, b) =>
-            {
-                int cmp = a.Line.CompareTo(b.Line);
-                if (cmp != 0) return cmp;
-                return a.StartColumn.CompareTo(b.StartColumn);
-            });
 
-            foreach (var lex in items)
+            foreach (var err in errors)
             {
-                int rowIndex = grid.Rows.Add(
-                    (int)lex.Code,
-                    lex.Type,
-                    lex.Text,
-                    $"{Strings.LineLowered} {lex.Line}, {lex.StartColumn}-{lex.EndColumn}"
+                int row = grid.Rows.Add(
+                    err.Fragment,
+                    $"строка {err.Line}, {err.StartColumn}-{err.EndColumn}",
+                    err.Message
                 );
 
-                grid.Rows[rowIndex].Tag = lex;
+                grid.Rows[row].Tag = err; 
             }
+ 
+            tabPageResults.Controls.Clear();
+            tabPageResults.Controls.Add(grid);
+            tabControlResults.SelectedIndex = 0;
         }
 
- 
+
+
+
         private void ScannerGrid_CellClick(object sender, DataGridViewCellEventArgs e)
         {
             if (e.RowIndex < 0) return;
 
             var grid = sender as DataGridView;
-            var lex = grid?.Rows[e.RowIndex].Tag as Lexeme;
-            if (lex == null) return;
 
-            int targetIndex = GetCharIndexFromLineColumn(lex.Line, lex.StartColumn);
+            var err = grid?.Rows[e.RowIndex].Tag as ParseError;
+            if (err == null) return;
+
+            int targetIndex = GetCharIndexFromLineColumn(err.Line, err.StartColumn);
+            richTextBox1.SelectionStart = targetIndex;
+            richTextBox1.ScrollToCaret();
+
 
             richTextBox1.Focus();
             richTextBox1.SelectionStart = targetIndex;
-            richTextBox1.SelectionLength = Math.Max(1, lex.EndColumn - lex.StartColumn + 1);
+            richTextBox1.SelectionLength = Math.Max(1, err.EndColumn - err.StartColumn + 1);
         }
 
 
@@ -949,7 +955,7 @@ namespace compiles_lab_1
             using (var proc = Process.Start(psi))
             {
                 proc.StandardInput.Write(code);
-                proc.StandardInput.Close();
+                proc.StandardInput.Close(); 
 
                 string output = proc.StandardOutput.ReadToEnd();
                 string error = proc.StandardError.ReadToEnd();
