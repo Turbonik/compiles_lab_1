@@ -1,8 +1,17 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace compiles_lab_1.Core
 {
+    public class ParseError
+    {
+        public string Fragment { get; set; }
+        public string Message { get; set; }
+        public int Line { get; set; }
+        public int StartColumn { get; set; }
+        public int EndColumn { get; set; }
+    }
     public enum ParsePhase
     {
         ExpectStart,
@@ -14,16 +23,6 @@ namespace compiles_lab_1.Core
         ExpectNumber,
         Done
     }
-
-    public class ParseError
-    {
-        public string Fragment { get; set; }
-        public string Message { get; set; }
-        public int Line { get; set; }
-        public int StartColumn { get; set; }
-        public int EndColumn { get; set; }
-    }
-
     public class ParseResult
     {
         public List<ParseError> Errors { get; } = new();
@@ -31,8 +30,8 @@ namespace compiles_lab_1.Core
 
     public static class Parser
     {
-        static string MsgConst => $"{Strings.Expkey} \"const\"";
-        static string MsgVal => $"{Strings.Expkey} \"val\"";
+        static string MsgConst => $"{Strings.Expkey} \"const \"";
+        static string MsgVal => $"{Strings.Expkey} \"val \"";
         static string MsgInt => $"{Strings.Expkey} \"Int\"";
         static string MsgColon => $"{Strings.Expsymb} ':'";
         static string MsgAssign => $"{Strings.Expsymb} '='";
@@ -46,6 +45,19 @@ namespace compiles_lab_1.Core
             var tokens = scan.Lexemes;
             var result = new ParseResult();
 
+            var lines = tokens
+                .GroupBy(t => t.Line)
+                .OrderBy(g => g.Key)
+                .ToDictionary(g => g.Key, g => g.ToList());
+
+            foreach (var kv in lines)
+                ParseLine(kv.Value, result);
+
+            return result;
+        }
+
+        static void ParseLine(List<Lexeme> tokens, ParseResult result)
+        {
             int i = 0;
             ParsePhase phase = ParsePhase.ExpectStart;
 
@@ -76,18 +88,6 @@ namespace compiles_lab_1.Core
                 });
             }
 
-            void AddEOFError(string msg, Lexeme last)
-            {
-                result.Errors.Add(new ParseError
-                {
-                    Fragment = "",
-                    Message = msg,
-                    Line = last.Line,
-                    StartColumn = last.EndColumn + 1,
-                    EndColumn = last.EndColumn + 1
-                });
-            }
-
             bool ValidUnsigned(Lexeme lex)
             {
                 var s = lex.Text;
@@ -113,29 +113,22 @@ namespace compiles_lab_1.Core
                 return phase switch
                 {
                     ParsePhase.ExpectStart =>
-                        code is LexemeCode.KeywordConst
-                               or LexemeCode.KeywordVal
-                               or LexemeCode.KeywordInt
-                               or LexemeCode.Semicolon,
+                        code is LexemeCode.KeywordConst or LexemeCode.Semicolon,
 
                     ParsePhase.ExpectVal =>
-                        code is LexemeCode.KeywordVal
-                               or LexemeCode.Semicolon,
+                        code is LexemeCode.KeywordVal or LexemeCode.Semicolon,
 
                     ParsePhase.ExpectId =>
                         code is LexemeCode.Semicolon,
 
                     ParsePhase.ExpectColon =>
-                        code is LexemeCode.KeywordInt
-                               or LexemeCode.Semicolon,
+                        code is LexemeCode.Colon or LexemeCode.Semicolon,
 
                     ParsePhase.ExpectIntKeyword =>
-                        code is LexemeCode.KeywordInt
-                               or LexemeCode.Semicolon,
+                        code is LexemeCode.KeywordInt or LexemeCode.Semicolon,
 
                     ParsePhase.ExpectAssign =>
-                        code is LexemeCode.Assign
-                               or LexemeCode.Semicolon,
+                        code is LexemeCode.Assign or LexemeCode.Semicolon,
 
                     ParsePhase.ExpectNumber =>
                         code is LexemeCode.Semicolon,
@@ -149,28 +142,25 @@ namespace compiles_lab_1.Core
 
             void ConsumeGarbage(string msg)
             {
-                int startIndex = i;
-                var first = tokens[startIndex];
-                int k = startIndex + 1;
+                int start = i;
+                var first = tokens[start];
+                int k = start + 1;
 
                 while (k < tokens.Count && !IsRecoveryPoint(tokens[k].Code))
                     k++;
 
-                int endIndex = k - 1;
-                var last = tokens[endIndex];
+                int end = k - 1;
+                var last = tokens[end];
 
                 string fragment = "";
-                for (int j = startIndex; j <= endIndex; j++)
+                for (int j = start; j <= end; j++)
                     fragment += tokens[j].Text;
 
                 AddBlockError(msg, fragment, first, last);
                 i = k;
-
-                if (i >= tokens.Count)
-                    phase = ParsePhase.ExpectStart;
             }
 
-            void AfterRecovery(ref ParsePhase phase)
+            void AfterRecovery()
             {
                 var t = Cur();
                 if (t == null) return;
@@ -187,9 +177,19 @@ namespace compiles_lab_1.Core
                         phase = ParsePhase.ExpectId;
                         break;
 
+                    case LexemeCode.Colon:
+                        Adv();
+                        phase = ParsePhase.ExpectIntKeyword;
+                        break;
+
                     case LexemeCode.KeywordInt:
                         Adv();
                         phase = ParsePhase.ExpectAssign;
+                        break;
+
+                    case LexemeCode.Assign:
+                        Adv();
+                        phase = ParsePhase.ExpectNumber;
                         break;
 
                     case LexemeCode.Semicolon:
@@ -202,25 +202,7 @@ namespace compiles_lab_1.Core
             while (true)
             {
                 var t = Cur();
-
-                if (t == null)
-                {
-                    if (tokens.Count > 0 && phase != ParsePhase.ExpectStart)
-                    {
-                        var last = tokens[^1];
-                        switch (phase)
-                        {
-                            case ParsePhase.ExpectVal: AddEOFError(MsgVal, last); break;
-                            case ParsePhase.ExpectId: AddEOFError(MsgId, last); break;
-                            case ParsePhase.ExpectColon: AddEOFError(MsgColon, last); break;
-                            case ParsePhase.ExpectIntKeyword: AddEOFError(MsgInt, last); break;
-                            case ParsePhase.ExpectAssign: AddEOFError(MsgAssign, last); break;
-                            case ParsePhase.ExpectNumber: AddEOFError(MsgNumber, last); break;
-                            case ParsePhase.Done: AddEOFError(MsgSemi, last); break;
-                        }
-                    }
-                    break;
-                }
+                if (t == null) break;
 
                 if (t.Code == LexemeCode.Error)
                 {
@@ -232,7 +214,6 @@ namespace compiles_lab_1.Core
                 switch (phase)
                 {
                     case ParsePhase.ExpectStart:
-
                         if (t.Code == LexemeCode.KeywordConst)
                         {
                             Adv();
@@ -247,7 +228,7 @@ namespace compiles_lab_1.Core
                         }
 
                         ConsumeGarbage(MsgConst);
-                        AfterRecovery(ref phase);
+                        AfterRecovery();
                         break;
 
                     case ParsePhase.ExpectVal:
@@ -259,26 +240,24 @@ namespace compiles_lab_1.Core
                         }
 
                         ConsumeGarbage(MsgVal);
-                        AfterRecovery(ref phase);
+                        AfterRecovery();
                         break;
 
                     case ParsePhase.ExpectId:
-
                         if (t.Code == LexemeCode.Identifier &&
-                          t.Text != "val" &&
-                          t.Text != "const")
+                            t.Text != "val " &&
+                            t.Text != "const ")
                         {
                             Adv();
                             phase = ParsePhase.ExpectColon;
                             break;
                         }
- 
+
                         ConsumeGarbage(MsgId);
-                        AfterRecovery(ref phase);
+                        AfterRecovery();
                         break;
 
                     case ParsePhase.ExpectColon:
-
                         if (t.Code == LexemeCode.Colon)
                         {
                             Adv();
@@ -296,7 +275,7 @@ namespace compiles_lab_1.Core
                         }
 
                         ConsumeGarbage(MsgColon);
-                        AfterRecovery(ref phase);
+                        AfterRecovery();
                         break;
 
                     case ParsePhase.ExpectIntKeyword:
@@ -317,7 +296,7 @@ namespace compiles_lab_1.Core
                         }
 
                         ConsumeGarbage(MsgInt);
-                        AfterRecovery(ref phase);
+                        AfterRecovery();
                         break;
 
                     case ParsePhase.ExpectAssign:
@@ -338,17 +317,16 @@ namespace compiles_lab_1.Core
                         }
 
                         ConsumeGarbage(MsgAssign);
-                        AfterRecovery(ref phase);
+                        AfterRecovery();
                         break;
 
                     case ParsePhase.ExpectNumber:
-
                         if (t.Code == LexemeCode.Integer)
                         {
                             if (!ValidUnsigned(t))
                             {
                                 ConsumeGarbage(MsgNumber);
-                                AfterRecovery(ref phase);
+                                AfterRecovery();
                                 break;
                             }
 
@@ -367,7 +345,7 @@ namespace compiles_lab_1.Core
                                 if (!ValidSigned(t2))
                                 {
                                     ConsumeGarbage(MsgNumber);
-                                    AfterRecovery(ref phase);
+                                    AfterRecovery();
                                     break;
                                 }
 
@@ -377,7 +355,7 @@ namespace compiles_lab_1.Core
                             }
 
                             ConsumeGarbage(MsgNumber);
-                            AfterRecovery(ref phase);
+                            AfterRecovery();
                             break;
                         }
 
@@ -391,7 +369,7 @@ namespace compiles_lab_1.Core
                         }
 
                         ConsumeGarbage(MsgNumber);
-                        AfterRecovery(ref phase);
+                        AfterRecovery();
                         break;
 
                     case ParsePhase.Done:
@@ -403,12 +381,10 @@ namespace compiles_lab_1.Core
                         }
 
                         ConsumeGarbage(MsgSemi);
-                        AfterRecovery(ref phase);
+                        AfterRecovery();
                         break;
                 }
             }
-
-            return result;
         }
     }
 }
