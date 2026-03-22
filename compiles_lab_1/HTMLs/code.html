@@ -1,0 +1,774 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<title>Исходный код программы</title>
+<style>
+body { font-family: Consolas, monospace; background:#f4faff; color:#003366; padding:20px; }
+h1 { color:#005599; border-bottom:2px solid #cce6ff; padding-bottom:5px; }
+h2 { color:#004477; margin-top:30px; }
+pre { background:#e8f3ff; padding:15px; border-radius:6px; overflow-x:auto; }
+code { font-family: Consolas, monospace; }
+</style>
+</head>
+<body>
+
+<h1>Исходный код программы</h1>
+
+<h2>Scanner.cs</h2>
+<pre><code>
+using System;
+Scanner.cs
+namespace compiles_lab_1.Core
+{
+    public static class Scanner
+    {
+        static bool IsLatinLetter(char c) =>
+            (c >= 'A' && c <= 'Z') || (c >= 'a' && c <= 'z');
+
+        public static ScanResult Analyze(string source)
+        {
+            var result = new ScanResult();
+            int line = 1, col = 1, i = 0;
+
+            while (i < source.Length)
+            {
+                char ch = source[i];
+
+                if (ch == '\n')
+                {
+                    line++; col = 1; i++;
+                    continue;
+                }
+
+                if (ch == ' ' || ch == '\t')
+                {
+                    i++; col++;
+                    continue;
+                }
+
+                if (i + 6 <= source.Length &&
+                    source.AsSpan(i, 5).SequenceEqual("const".AsSpan()) &&
+                    source[i + 5] == ' ')
+                {
+                    result.Lexemes.Add(new Lexeme
+                    {
+                        Code = LexemeCode.KeywordConst,
+                        Type = Strings.Keyword,
+                        Text = "const",
+                        Line = line,
+                        StartColumn = col,
+                        EndColumn = col + 4
+                    });
+                    i += 6; col += 6;
+                    continue;
+                }
+
+                if (i + 4 <= source.Length &&
+                    source.AsSpan(i, 3).SequenceEqual("val".AsSpan()) &&
+                    source[i + 3] == ' ')
+                {
+                    result.Lexemes.Add(new Lexeme
+                    {
+                        Code = LexemeCode.KeywordVal,
+                        Type = Strings.Keyword,
+                        Text = "val",
+                        Line = line,
+                        StartColumn = col,
+                        EndColumn = col + 2
+                    });
+                    i += 4; col += 4;
+                    continue;
+                }
+
+                if (i + 3 <= source.Length &&
+                    source.AsSpan(i, 3).SequenceEqual("Int".AsSpan()))
+                {
+                    result.Lexemes.Add(new Lexeme
+                    {
+                        Code = LexemeCode.KeywordInt,
+                        Type = Strings.Keyword,
+                        Text = "Int",
+                        Line = line,
+                        StartColumn = col,
+                        EndColumn = col + 2
+                    });
+                    i += 3; col += 3;
+                    continue;
+                }
+
+                if (char.IsDigit(ch))
+                {
+                    int startCol = col, startIndex = i;
+                    while (i < source.Length && char.IsDigit(source[i]))
+                    {
+                        i++; col++;
+                    }
+                    result.Lexemes.Add(new Lexeme
+                    {
+                        Code = LexemeCode.Integer,
+                        Type = Strings.Integer,
+                        Text = source.Substring(startIndex, i - startIndex),
+                        Line = line,
+                        StartColumn = startCol,
+                        EndColumn = col - 1
+                    });
+                    continue;
+                }
+
+                if (IsLatinLetter(ch) || ch == '_')
+                {
+                    int startCol = col, startIndex = i;
+                    while (i < source.Length &&
+                          (IsLatinLetter(source[i]) || char.IsDigit(source[i]) || source[i] == '_'))
+                    {
+                        i++; col++;
+                    }
+                    result.Lexemes.Add(new Lexeme
+                    {
+                        Code = LexemeCode.Identifier,
+                        Type = Strings.Identifier,
+                        Text = source.Substring(startIndex, i - startIndex),
+                        Line = line,
+                        StartColumn = startCol,
+                        EndColumn = col - 1
+                    });
+                    continue;
+                }
+
+                if (ch == ':' || ch == '=' || ch == ';' || ch == '-')
+                {
+                    LexemeCode code =
+                        ch == ':' ? LexemeCode.Colon :
+                        ch == '=' ? LexemeCode.Assign :
+                        ch == ';' ? LexemeCode.Semicolon :
+                        LexemeCode.Minus;
+
+                    string type =
+                        ch == ':' ? Strings.DeclareOperator :
+                        ch == '=' ? Strings.EqualsOperator :
+                        ch == ';' ? Strings.EndOperator :
+                        Strings.SubstractionOperator;
+
+                    result.Lexemes.Add(new Lexeme
+                    {
+                        Code = code,
+                        Type = type,
+                        Text = ch.ToString(),
+                        Line = line,
+                        StartColumn = col,
+                        EndColumn = col
+                    });
+
+                    i++; col++;
+                    continue;
+                }
+
+                int errStartCol = col, errStartIndex = i;
+                while (i < source.Length)
+                {
+                    char c = source[i];
+                    bool ok =
+                        char.IsDigit(c) ||
+                        IsLatinLetter(c) ||
+                        c == '_' || c == ':' || c == '=' ||
+                        c == ';' || c == '-' ||
+                        c == ' ' || c == '\t' || c == '\n';
+                    if (ok) break;
+                    i++; col++;
+                }
+
+                string bad = source.Substring(errStartIndex, i - errStartIndex);
+
+                result.Lexemes.Add(new Lexeme
+                {
+                    Code = LexemeCode.Error,
+                    Type = Strings.Error,
+                    Text = bad,
+                    Line = line,
+                    StartColumn = errStartCol,
+                    EndColumn = col - 1
+                });
+            }
+
+            return result;
+        }
+    }
+}
+</code></pre>
+
+ 
+<h2>Parser.cs</h2>
+<pre><code>
+using System;
+using System.Collections.Generic;
+
+namespace compiles_lab_1.Core
+{
+    public enum ParsePhase
+    {
+        ExpectStart,
+        ExpectVal,
+        ExpectId,
+        ExpectColon,
+        ExpectIntKeyword,
+        ExpectAssign,
+        ExpectNumber,
+        Done
+    }
+
+    public class ParseError
+    {
+        public string Fragment { get; set; }
+        public string Message { get; set; }
+        public int Line { get; set; }
+        public int StartColumn { get; set; }
+        public int EndColumn { get; set; }
+    }
+
+    public class ParseResult
+    {
+        public List<ParseError> Errors { get; } = new();
+    }
+
+    public static class Parser
+    {
+        static string MsgConst => $"{Strings.Expkey} \"const\"";
+        static string MsgVal => $"{Strings.Expkey} \"val\"";
+        static string MsgInt => $"{Strings.Expkey} \"Int\"";
+        static string MsgColon => $"{Strings.Expsymb} ':'";
+        static string MsgAssign => $"{Strings.Expsymb} '='";
+        static string MsgNumber => Strings.Expnum;
+        static string MsgId => $"{Strings.Expid}";
+        static string MsgSemi => $"{Strings.Expsymb} ';'";
+
+        public static ParseResult Analyze(string source)
+        {
+            var scan = Scanner.Analyze(source);
+            var tokens = scan.Lexemes;
+            var result = new ParseResult();
+
+            int i = 0;
+            ParsePhase phase = ParsePhase.ExpectStart;
+
+            Lexeme Cur() => i < tokens.Count ? tokens[i] : null;
+            void Adv() { if (i < tokens.Count) i++; }
+
+            void AddBlockError(string msg, string fragment, Lexeme first, Lexeme last)
+            {
+                result.Errors.Add(new ParseError
+                {
+                    Fragment = fragment,
+                    Message = msg,
+                    Line = first.Line,
+                    StartColumn = first.StartColumn,
+                    EndColumn = last.EndColumn
+                });
+            }
+
+            void AddPointError(string msg, Lexeme prev)
+            {
+                result.Errors.Add(new ParseError
+                {
+                    Fragment = "",
+                    Message = msg,
+                    Line = prev.Line,
+                    StartColumn = prev.EndColumn + 1,
+                    EndColumn = prev.EndColumn + 1
+                });
+            }
+
+            void AddEOFError(string msg, Lexeme last)
+            {
+                result.Errors.Add(new ParseError
+                {
+                    Fragment = "",
+                    Message = msg,
+                    Line = last.Line,
+                    StartColumn = last.EndColumn + 1,
+                    EndColumn = last.EndColumn + 1
+                });
+            }
+
+            bool ValidUnsigned(Lexeme lex)
+            {
+                var s = lex.Text;
+                if (s == "0") return true;
+                if (s.Length > 1 && s[0] == '0') return false;
+                foreach (var c in s)
+                    if (c < '0' || c > '9') return false;
+                return true;
+            }
+
+            bool ValidSigned(Lexeme lex)
+            {
+                var s = lex.Text;
+                if (s.Length == 0) return false;
+                if (s[0] == '0') return false;
+                foreach (var c in s)
+                    if (c < '0' || c > '9') return false;
+                return true;
+            }
+
+            bool IsRecoveryPoint(LexemeCode code)
+            {
+                return phase switch
+                {
+                    ParsePhase.ExpectStart =>
+                        code is LexemeCode.KeywordConst
+                               or LexemeCode.KeywordVal
+                               or LexemeCode.KeywordInt
+                               or LexemeCode.Semicolon,
+
+                    ParsePhase.ExpectVal =>
+                        code is LexemeCode.KeywordVal
+                                or LexemeCode.KeywordConst
+                                or LexemeCode.KeywordInt
+                                or LexemeCode.Semicolon,
+
+                    ParsePhase.ExpectId =>
+                        code is LexemeCode.Semicolon or
+                            LexemeCode.KeywordInt,
+
+                    ParsePhase.ExpectColon =>
+                        code is LexemeCode.KeywordInt
+                               or LexemeCode.Semicolon,
+
+                    ParsePhase.ExpectIntKeyword =>
+                        code is LexemeCode.KeywordInt
+                               or LexemeCode.Semicolon,
+
+                    ParsePhase.ExpectAssign =>
+                        code is LexemeCode.Assign
+                               or LexemeCode.Semicolon,
+
+                    ParsePhase.ExpectNumber =>
+                        code is LexemeCode.Semicolon,
+
+                    ParsePhase.Done =>
+                        code is LexemeCode.Semicolon,
+
+                    _ => false
+                };
+            }
+
+            void ConsumeGarbage(string msg)
+            {
+                int startIndex = i;
+                var first = tokens[startIndex];
+                int k = startIndex + 1;
+
+                while (k < tokens.Count &&
+                       !IsRecoveryPoint(tokens[k].Code) &&
+                       tokens[k].Line == first.Line)
+                {
+                    k++;
+                }
+
+                int endIndex = k - 1;
+                var last = tokens[endIndex];
+
+                string fragment = "";
+                for (int j = startIndex; j <= endIndex; j++)
+                    fragment += tokens[j].Text;
+
+                AddBlockError(msg, fragment, first, last);
+                i = k;
+
+                if (i >= tokens.Count)
+                    phase = ParsePhase.ExpectStart;
+            }
+
+            void AfterRecovery(ref ParsePhase phase)
+            {
+                var t = Cur();
+                if (t == null) return;
+
+                switch (t.Code)
+                {
+                    case LexemeCode.KeywordConst:
+                        Adv();
+                        phase = ParsePhase.ExpectVal;
+                        break;
+
+                    case LexemeCode.KeywordVal:
+                        Adv();
+                        phase = ParsePhase.ExpectId;
+                        break;
+
+                    case LexemeCode.KeywordInt:
+                        Adv();
+                        phase = ParsePhase.ExpectAssign;
+                        break;
+
+                    case LexemeCode.Semicolon:
+                        Adv();
+                        phase = ParsePhase.ExpectStart;
+                        break;
+                }
+            }
+
+            while (true)
+            {
+                var t = Cur();
+
+                if (t == null)
+                {
+                    if (tokens.Count > 0 && phase != ParsePhase.ExpectStart)
+                    {
+                        var last = tokens[^1];
+                        switch (phase)
+                        {
+                            case ParsePhase.ExpectVal: AddEOFError(MsgVal, last); break;
+                            case ParsePhase.ExpectId: AddEOFError(MsgId, last); break;
+                            case ParsePhase.ExpectColon: AddEOFError(MsgColon, last); break;
+                            case ParsePhase.ExpectIntKeyword: AddEOFError(MsgInt, last); break;
+                            case ParsePhase.ExpectAssign: AddEOFError(MsgAssign, last); break;
+                            case ParsePhase.ExpectNumber: AddEOFError(MsgNumber, last); break;
+                            case ParsePhase.Done: AddEOFError(MsgSemi, last); break;
+                        }
+                    }
+                    break;
+                }
+
+                if (t.Code == LexemeCode.Error)
+                {
+                    AddBlockError(Strings.InvalidLexeme, t.Text, t, t);
+                    Adv();
+                    continue;
+                }
+
+                switch (phase)
+                {
+                    case ParsePhase.ExpectStart:
+
+                        if (t.Code == LexemeCode.KeywordConst)
+                        {
+                            Adv();
+                            phase = ParsePhase.ExpectVal;
+                            break;
+                        }
+
+                        if (t.Code == LexemeCode.Semicolon)
+                        {
+                            Adv();
+                            break;
+                        }
+
+                        ConsumeGarbage(MsgConst);
+                        AfterRecovery(ref phase);
+                        break;
+
+                    case ParsePhase.ExpectVal:
+                        if (t.Code == LexemeCode.KeywordVal)
+                        {
+                            Adv();
+                            phase = ParsePhase.ExpectId;
+                            break;
+                        }
+
+                        ConsumeGarbage(MsgVal);
+                        AfterRecovery(ref phase);
+                        break;
+
+                    case ParsePhase.ExpectId:
+
+                        if (t.Code == LexemeCode.Identifier &&
+                            t.Text != "val" &&
+                            t.Text != "const")
+                        {
+                            Adv();
+                            phase = ParsePhase.ExpectColon;
+                            break;
+                        }
+
+                        ConsumeGarbage(MsgId);
+                        AfterRecovery(ref phase);
+                        break;
+
+                    case ParsePhase.ExpectColon:
+
+                        if (t.Code == LexemeCode.Colon)
+                        {
+                            Adv();
+                            phase = ParsePhase.ExpectIntKeyword;
+                            break;
+                        }
+
+                        if (t.Code == LexemeCode.Semicolon)
+                        {
+                            var prev = tokens[i - 1];
+                            AddPointError(MsgColon, prev);
+                            Adv();
+                            phase = ParsePhase.ExpectStart;
+                            break;
+                        }
+
+                        ConsumeGarbage(MsgColon);
+                        AfterRecovery(ref phase);
+                        break;
+
+                    case ParsePhase.ExpectIntKeyword:
+                        if (t.Code == LexemeCode.KeywordInt)
+                        {
+                            Adv();
+                            phase = ParsePhase.ExpectAssign;
+                            break;
+                        }
+
+                        if (t.Code == LexemeCode.Semicolon)
+                        {
+                            var prev = tokens[i - 1];
+                            AddPointError(MsgInt, prev);
+                            Adv();
+                            phase = ParsePhase.ExpectStart;
+                            break;
+                        }
+
+                        ConsumeGarbage(MsgInt);
+                        AfterRecovery(ref phase);
+                        break;
+
+                    case ParsePhase.ExpectAssign:
+                        if (t.Code == LexemeCode.Assign)
+                        {
+                            Adv();
+                            phase = ParsePhase.ExpectNumber;
+                            break;
+                        }
+
+                        if (t.Code == LexemeCode.Semicolon)
+                        {
+                            var prev = tokens[i - 1];
+                            AddPointError(MsgAssign, prev);
+                            Adv();
+                            phase = ParsePhase.ExpectStart;
+                            break;
+                        }
+
+                        ConsumeGarbage(MsgAssign);
+                        AfterRecovery(ref phase);
+                        break;
+
+                    case ParsePhase.ExpectNumber:
+
+                        if (t.Code == LexemeCode.Integer)
+                        {
+                            if (!ValidUnsigned(t))
+                            {
+                                ConsumeGarbage(MsgNumber);
+                                AfterRecovery(ref phase);
+                                break;
+                            }
+
+                            Adv();
+                            phase = ParsePhase.Done;
+                            break;
+                        }
+
+                        if (t.Code == LexemeCode.Minus)
+                        {
+                            Adv();
+                            var t2 = Cur();
+
+                            if (t2 != null && t2.Code == LexemeCode.Integer)
+                            {
+                                if (!ValidSigned(t2))
+                                {
+                                    ConsumeGarbage(MsgNumber);
+                                    AfterRecovery(ref phase);
+                                    break;
+                                }
+
+                                Adv();
+                                phase = ParsePhase.Done;
+                                break;
+                            }
+
+                            ConsumeGarbage(MsgNumber);
+                            AfterRecovery(ref phase);
+                            break;
+                        }
+
+                        if (t.Code == LexemeCode.Semicolon)
+                        {
+                            var prev = tokens[i - 1];
+                            AddPointError(MsgNumber, prev);
+                            Adv();
+                            phase = ParsePhase.ExpectStart;
+                            break;
+                        }
+
+                        ConsumeGarbage(MsgNumber);
+                        AfterRecovery(ref phase);
+                        break;
+
+                    case ParsePhase.Done:
+                        if (t.Code == LexemeCode.Semicolon)
+                        {
+                            Adv();
+                            phase = ParsePhase.ExpectStart;
+                            break;
+                        }
+
+                        ConsumeGarbage(MsgSemi);
+                        AfterRecovery(ref phase);
+                        break;
+                }
+            }
+
+            return result;
+        }
+    }
+}
+</code></pre>
+
+</code></pre>
+
+<h2>ScannerModel.cs</h2>
+<pre><code>
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace compiles_lab_1.Core
+{
+    public enum LexemeCode
+    {
+        Integer = 1,
+        KeywordInt = 2,
+        KeywordConst = 3,
+        KeywordVal = 4,
+        Identifier = 5,
+        Colon = 6,
+        Assign = 7,
+        Semicolon = 8,
+        Minus = 9,
+        Error = 11
+    }
+
+    public class Lexeme
+    {
+        public LexemeCode Code { get; set; }
+        public string Type { get; set; }  
+        public string Text { get; set; }  
+        public int Line { get; set; } 
+        public int StartColumn { get; set; } 
+        public int EndColumn { get; set; }  
+    }
+    
+    public class ScanResult
+    {
+        public List<Lexeme> Lexemes { get; } = new();
+    }
+}
+</code></pre>
+
+<h2>UndoRedoManager.cs</h2>
+<pre><code>
+using System.Collections.Generic;
+using System.Windows.Forms;
+
+namespace compiles_lab_1.Core
+{
+    public class UndoRedoManager
+    {
+        private class EditorState
+        {
+            public string Text;
+            public int Caret;
+        }
+
+        private readonly Stack<EditorState> _undo = new();
+        private readonly Stack<EditorState> _redo = new();
+
+        private string _lastText;
+        private int _lastCaret;
+        private bool _hasLast;
+        private bool _suppress;
+
+        public void ResetInitial(RichTextBox box)
+        {
+            _undo.Clear();
+            _redo.Clear();
+            _lastText = box.Text;
+            _lastCaret = box.SelectionStart;
+            _hasLast = true;
+        }
+
+        public void OnTextChanged(RichTextBox box)
+        {
+            if (_suppress)
+                return;
+
+            if (!_hasLast)
+            {
+                _lastText = box.Text;
+                _lastCaret = box.SelectionStart;
+                _hasLast = true;
+                return;
+            }
+
+            _undo.Push(new EditorState
+            {
+                Text = _lastText,
+                Caret = _lastCaret
+            });
+
+            _redo.Clear();
+
+            _lastText = box.Text;
+            _lastCaret = box.SelectionStart;
+        }
+
+        public void Undo(RichTextBox box)
+        {
+            if (_undo.Count == 0)
+                return;
+
+            var state = _undo.Pop();
+
+            _redo.Push(new EditorState
+            {
+                Text = box.Text,
+                Caret = box.SelectionStart
+            });
+
+            _suppress = true;
+            box.Text = state.Text;
+            box.SelectionStart = state.Caret;
+            _suppress = false;
+
+            _lastText = box.Text;
+            _lastCaret = box.SelectionStart;
+        }
+
+        public void Redo(RichTextBox box)
+        {
+            if (_redo.Count == 0)
+                return;
+
+            var state = _redo.Pop();
+
+            _undo.Push(new EditorState
+            {
+                Text = box.Text,
+                Caret = box.SelectionStart
+            });
+
+            _suppress = true;
+            box.Text = state.Text;
+            box.SelectionStart = state.Caret;
+            _suppress = false;
+
+            _lastText = box.Text;
+            _lastCaret = box.SelectionStart;
+        }
+    }
+}
+</code></pre>
+
+</body>
+</html>

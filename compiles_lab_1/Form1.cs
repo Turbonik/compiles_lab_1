@@ -245,7 +245,7 @@ namespace compiles_lab_1
         {
             resultIcons = new ImageList();
             resultIcons.ImageSize = new Size(16, 16);
- 
+            
             string basePath = Path.Combine(Application.StartupPath, "IconsForCompiles");
 
             resultIcons.Images.Add("ok", Image.FromFile(Path.Combine(basePath, "ok.png")));      
@@ -278,6 +278,14 @@ namespace compiles_lab_1
             PasteToolStripMenuItem.Click += PasteText;
             DeleteToolStripMenuItem.Click += DeleteText;
             HighlightAllÂñåToolStripMenuItem.Click += SelectAllText;
+
+            TaskToolStripMenuItem.Click += (s, e) => HtmlOpener.OpenTask();
+            GrammarToolStripMenuItem.Click += (s, e) => HtmlOpener.OpenGrammar();
+            ClassificationToolStripMenuItem.Click += (s, e) => HtmlOpener.OpenClassification();
+            AnalysisToolStripMenuItem.Click += (s, e) => HtmlOpener.OpenAnalysis();
+            ExampleToolStripMenuItem.Click += (s, e) => HtmlOpener.OpenExample();
+            SourceListToolStripMenuItem.Click += (s, e) => HtmlOpener.OpenSourceList();
+            CodeToolStripMenuItem.Click += (s, e) => HtmlOpener.OpenCode();
 
             toolStripButton2.Click += CreateFile;
             toolStripButton3.Click += OpenFile;

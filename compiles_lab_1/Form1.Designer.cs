@@ -25,6 +25,8 @@ namespace compiles_lab_1
             splitContainerLines = new SplitContainer();
             lineNumberBox = new RichTextBox();
             richTextBox1 = new RichTextBox();
+            tabControlResults = new TabControl();
+            tabPageResults = new TabPage();
             menuStrip1 = new MenuStrip();
             fileMenu = new ToolStripMenuItem();
             CreateToolStripMenuItem = new ToolStripMenuItem();
@@ -78,14 +80,10 @@ namespace compiles_lab_1
             statusLines = new ToolStripStatusLabel();
             statusSize = new ToolStripStatusLabel();
             statusLang = new ToolStripStatusLabel();
-  
- 
             dataGridViewTextBoxColumn4 = new DataGridViewTextBoxColumn();
             dataGridViewTextBoxColumn3 = new DataGridViewTextBoxColumn();
             dataGridViewTextBoxColumn2 = new DataGridViewTextBoxColumn();
             dataGridViewTextBoxColumn1 = new DataGridViewTextBoxColumn();
-            tabPageResults = new TabPage();
-            tabControlResults = new TabControl();
             ((System.ComponentModel.ISupportInitialize)splitContainer1).BeginInit();
             splitContainer1.Panel1.SuspendLayout();
             splitContainer1.Panel2.SuspendLayout();
@@ -94,13 +92,12 @@ namespace compiles_lab_1
             splitContainerLines.Panel1.SuspendLayout();
             splitContainerLines.Panel2.SuspendLayout();
             splitContainerLines.SuspendLayout();
+            tabControlResults.SuspendLayout();
             menuStrip1.SuspendLayout();
             toolStrip1.SuspendLayout();
             tabContextMenu.SuspendLayout();
             tableLayoutPanelMain.SuspendLayout();
             statusStrip.SuspendLayout();
-            tabPageResults.SuspendLayout();
-            tabControlResults.SuspendLayout();
             SuspendLayout();
             // 
             // splitContainer1
@@ -146,6 +143,18 @@ namespace compiles_lab_1
             // 
             resources.ApplyResources(richTextBox1, "richTextBox1");
             richTextBox1.Name = "richTextBox1";
+            // 
+            // tabControlResults
+            // 
+            resources.ApplyResources(tabControlResults, "tabControlResults");
+            tabControlResults.Controls.Add(tabPageResults);
+            tabControlResults.Name = "tabControlResults";
+            tabControlResults.SelectedIndex = 0;
+            // 
+            // tabPageResults
+            // 
+            resources.ApplyResources(tabPageResults, "tabPageResults");
+            tabPageResults.Name = "tabPageResults";
             // 
             // menuStrip1
             // 
@@ -460,19 +469,6 @@ namespace compiles_lab_1
             dataGridViewTextBoxColumn1.Name = "dataGridViewTextBoxColumn1";
             dataGridViewTextBoxColumn1.ReadOnly = true;
             // 
-            // tabPageResults
-            // 
-            resources.ApplyResources(tabPageResults, "tabPageResults");
-            tabPageResults.Name = "tabPageResults";
- 
-            // 
-            // tabControlResults
-            // 
-            resources.ApplyResources(tabControlResults, "tabControlResults");
-            tabControlResults.Controls.Add(tabPageResults);
-            tabControlResults.Name = "tabControlResults";
-            tabControlResults.SelectedIndex = 0;
-            // 
             // Form1
             // 
             resources.ApplyResources(this, "$this");
@@ -488,6 +484,7 @@ namespace compiles_lab_1
             splitContainerLines.Panel2.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)splitContainerLines).EndInit();
             splitContainerLines.ResumeLayout(false);
+            tabControlResults.ResumeLayout(false);
             menuStrip1.ResumeLayout(false);
             menuStrip1.PerformLayout();
             toolStrip1.ResumeLayout(false);
@@ -497,8 +494,6 @@ namespace compiles_lab_1
             tableLayoutPanelMain.PerformLayout();
             statusStrip.ResumeLayout(false);
             statusStrip.PerformLayout();
-            tabPageResults.ResumeLayout(false);
-            tabControlResults.ResumeLayout(false);
             ResumeLayout(false);
             PerformLayout();
 

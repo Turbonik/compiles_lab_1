@@ -38,6 +38,36 @@ namespace compiles_lab_1
             CheckPath(aboutPath);
         }
 
+        public static void OpenTask() =>
+            OpenHtml("HTMLs/task.html");
+
+        public static void OpenGrammar() =>
+            OpenHtml("HTMLs/grammar.html");
+
+        public static void OpenClassification() =>
+            OpenHtml("HTMLs/classification.html");
+
+        public static void OpenAnalysis() =>
+            OpenHtml("HTMLs/analysis.html");
+
+        public static void OpenExample() =>
+            OpenHtml("HTMLs/example.html");
+
+        public static void OpenSourceList() =>
+            OpenHtml("HTMLs/sourcelist.html");
+
+        public static void OpenCode() =>
+            OpenHtml("HTMLs/code.html");
+
+
+        private static void OpenHtml(string relativePath)
+        {
+            string path = Path.Combine(basePath, relativePath);
+            CheckPath(path);
+        }
+
+
+
         public static void CheckPath(string Path)
         {
 
