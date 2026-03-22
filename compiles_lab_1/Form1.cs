@@ -10,7 +10,6 @@ using System.Threading;
 using System.Windows.Forms;
 using System.ComponentModel;
 using compiles_lab_1.Core;
- 
 using System.Diagnostics;
 
 namespace compiles_lab_1
@@ -954,36 +953,28 @@ namespace compiles_lab_1
 
         private void RunSyntaxAnalysis(string code)
         {
-            var psi = new ProcessStartInfo
+            var result = AntlrWrapper.Analyze(code);
+
+            if (result.Errors.Count == 0)
             {
-                FileName = Path.Combine(Application.StartupPath, "parser.exe"),
-                RedirectStandardInput = true,
-                RedirectStandardOutput = true,
-                RedirectStandardError = true,
-                UseShellExecute = false,
-                CreateNoWindow = true
-            };
-
-            using (var proc = Process.Start(psi))
+                MessageBox.Show("Синтаксический анализ: OK");
+            }
+            else
             {
-                proc.StandardInput.Write(code);
-                proc.StandardInput.Close(); 
+                var sb = new StringBuilder();
+                sb.AppendLine("Синтаксические ошибки:");
 
-                string output = proc.StandardOutput.ReadToEnd();
-                string error = proc.StandardError.ReadToEnd();
-
-                proc.WaitForExit();
-
-                if (proc.ExitCode == 0)
+                foreach (var err in result.Errors)
                 {
-                    MessageBox.Show("Синтаксический анализ: OK");
+                    sb.AppendLine(
+                        $"Строка {err.Line}, {err.StartColumn}-{err.EndColumn}: {err.Message} (\"{err.Fragment}\")");
                 }
-                else
-                {
-                    MessageBox.Show("Синтаксическая ошибка:\n" + error);
-                }
+
+                MessageBox.Show(sb.ToString());
             }
         }
+
+
 
         private void UpdateResultTabIndicator(int errorCount)
         {
