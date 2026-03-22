@@ -113,10 +113,8 @@ namespace compiles_lab_1.Core
                 return phase switch
                 {
                     ParsePhase.ExpectStart =>
-                        code is LexemeCode.KeywordConst
-                               or LexemeCode.KeywordVal
-                               or LexemeCode.KeywordInt
-                               or LexemeCode.Semicolon,
+                        code is LexemeCode.KeywordConst,
+ 
 
                     ParsePhase.ExpectVal =>
                         code is LexemeCode.KeywordVal
