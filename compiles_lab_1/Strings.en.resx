@@ -231,4 +231,37 @@
   <data name="Identifier" xml:space="preserve">
     <value>identifier</value>
   </data>
+  <data name="Result" xml:space="preserve">
+    <value>Result</value>
+  </data>
+  <data name="Mistake1" xml:space="preserve">
+    <value>mistake</value>
+  </data>
+  <data name="Mistake2" xml:space="preserve">
+    <value>mistakes</value>
+  </data>
+  <data name="Mistake3" xml:space="preserve">
+    <value>mistakes</value>
+  </data>
+  <data name="Nomistakes" xml:space="preserve">
+    <value>no mistakes</value>
+  </data>
+  <data name="Incfrag" xml:space="preserve">
+    <value>Incorrect fragment</value>
+  </data>
+  <data name="Description" xml:space="preserve">
+    <value>Description</value>
+  </data>
+  <data name="Expkey" xml:space="preserve">
+    <value>Expected keyword</value>
+  </data>
+  <data name="Expsymb" xml:space="preserve">
+    <value>Expected symbol</value>
+  </data>
+  <data name="Expid" xml:space="preserve">
+    <value>Expected identificator</value>
+  </data>
+  <data name="Expnum" xml:space="preserve">
+    <value>Expected number</value>
+  </data>
 </root>

@@ -231,4 +231,37 @@
   <data name="Identifier" xml:space="preserve">
     <value>идентификатор</value>
   </data>
+  <data name="Result" xml:space="preserve">
+    <value>Результат</value>
+  </data>
+  <data name="Mistake1" xml:space="preserve">
+    <value>ошибка</value>
+  </data>
+  <data name="Mistake2" xml:space="preserve">
+    <value>ошибки</value>
+  </data>
+  <data name="Mistake3" xml:space="preserve">
+    <value>ошибок</value>
+  </data>
+  <data name="Nomistakes" xml:space="preserve">
+    <value>ошибок нет</value>
+  </data>
+  <data name="Incfrag" xml:space="preserve">
+    <value>Неверный фрагмент</value>
+  </data>
+  <data name="Description" xml:space="preserve">
+    <value>Описание</value>
+  </data>
+  <data name="Expkey" xml:space="preserve">
+    <value>Ожидалось ключевое слово</value>
+  </data>
+  <data name="Expsymb" xml:space="preserve">
+    <value>Ожидался символ</value>
+  </data>
+  <data name="Expid" xml:space="preserve">
+    <value>Ожидался идентификатор</value>
+  </data>
+  <data name="Expnum" xml:space="preserve">
+    <value>Ожидалось число</value>
+  </data>
 </root>

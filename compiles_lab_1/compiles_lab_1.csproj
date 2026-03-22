@@ -25,10 +25,14 @@
     <None Remove="HTMLs\help_en.html" />
     <None Remove="HTMLs\help_ru.html" />
     <None Remove="IconsForCompiles\About.png" />
+    <None Remove="IconsForCompiles\check.png" />
     <None Remove="IconsForCompiles\Copy.png" />
     <None Remove="IconsForCompiles\Create.png" />
     <None Remove="IconsForCompiles\Cut.png" />
+    <None Remove="IconsForCompiles\delete.png" />
+    <None Remove="IconsForCompiles\error.png" />
     <None Remove="IconsForCompiles\Help.png" />
+    <None Remove="IconsForCompiles\ok.png" />
     <None Remove="IconsForCompiles\Open.png" />
     <None Remove="IconsForCompiles\Paste.png" />
     <None Remove="IconsForCompiles\Play.png" />
@@ -62,7 +66,13 @@
     <Content Include="IconsForCompiles\Cut.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
+    <Content Include="IconsForCompiles\error.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
     <Content Include="IconsForCompiles\Help.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="IconsForCompiles\ok.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <Content Include="IconsForCompiles\Open.png">

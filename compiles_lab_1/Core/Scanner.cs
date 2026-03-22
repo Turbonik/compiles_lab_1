@@ -165,7 +165,7 @@ namespace compiles_lab_1.Core
                 {
                     Code = LexemeCode.Error,
                     Type = Strings.Error,
-                    Text = $"{Strings.InvalidLexeme} \"{bad}\"",
+                    Text = bad,
                     Line = line,
                     StartColumn = errStartCol,
                     EndColumn = col - 1

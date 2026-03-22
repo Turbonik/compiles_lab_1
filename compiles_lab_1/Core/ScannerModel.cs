@@ -17,7 +17,6 @@ namespace compiles_lab_1.Core
         Assign = 7,
         Semicolon = 8,
         Minus = 9,
-        Space = 10,
         Error = 11
     }
 
@@ -31,14 +30,7 @@ namespace compiles_lab_1.Core
         public int EndColumn { get; set; }  
     }
     
-    public class LexicalError
-    {
-        public string Message { get; set; }
-        public int Line { get; set; }
-        public int Column { get; set; }
-        public char Symbol { get; set; }
-    }
-
+ 
     public class ScanResult
     {
         public List<Lexeme> Lexemes { get; } = new();

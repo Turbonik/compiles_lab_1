@@ -9,7 +9,7 @@ namespace compiles_lab_1.Core
     {
         private static readonly HashSet<string> keywords = new()
         {
-            "int", "const", "val"
+            "Int", "const", "val"
         };
 
         private static readonly char[] separators =
@@ -48,7 +48,7 @@ namespace compiles_lab_1.Core
 
                 string word = box.Text.Substring(start, index - start);
 
-                if (keywords.Contains(word.ToLower()))
+                if (keywords.Contains(word))
                 {
                     box.Select(start, word.Length);
                     box.SelectionColor = Color.Blue;

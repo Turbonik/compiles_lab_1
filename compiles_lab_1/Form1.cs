@@ -139,6 +139,19 @@ namespace compiles_lab_1
 
             SuspendLayout();
             ApplyResourcesRecursive(this, res);
+            
+            foreach (var doc in documents)
+{
+    if (doc.ScannerGrid != null)
+    {
+        var grid = doc.ScannerGrid;
+
+        grid.Columns[0].HeaderText = Strings.Incfrag;
+        grid.Columns[1].HeaderText = Strings.Location;
+        grid.Columns[2].HeaderText = Strings.Description;
+    }
+}
+
             ResumeLayout(true);
 
             tabsStrip.Items.Clear();
@@ -191,6 +204,8 @@ namespace compiles_lab_1
 
             CloseTabMenuItem.Text = Strings.CloseTab;
             ScaleUI();
+
+            tabPageResults.ImageIndex = 0;
         }
 
         private void ApplyResourcesRecursive(Control control, ComponentResourceManager res)
@@ -229,6 +244,16 @@ namespace compiles_lab_1
 
         private void AttachEvents()
         {
+            resultIcons = new ImageList();
+            resultIcons.ImageSize = new Size(16, 16);
+ 
+            string basePath = Path.Combine(Application.StartupPath, "IconsForCompiles");
+
+            resultIcons.Images.Add("ok", Image.FromFile(Path.Combine(basePath, "ok.png")));      
+            resultIcons.Images.Add("error", Image.FromFile(Path.Combine(basePath, "error.png")));  
+
+            tabControlResults.ImageList = resultIcons;
+            tabPageResults.ImageIndex = 0; 
 
 
             TextSizeComboBox.Text = "9";
@@ -402,14 +427,10 @@ namespace compiles_lab_1
  
             grid.Font = new Font("Segoe UI", 10);
 
-            grid.Columns.Add("Fragment", "Ќеверный фрагмент");
-            grid.Columns.Add("Location", "ћестоположение");
-            grid.Columns.Add("Message", "ќписание");
-
-
-            //grid.Columns["Code"].Width = 120; 
-            //grid.Columns["Code"].AutoSizeMode = DataGridViewAutoSizeColumnMode.None;
-
+            grid.Columns.Add("Fragment", Strings.Incfrag);
+            grid.Columns.Add("Location", Strings.Location);
+            grid.Columns.Add("Message", Strings.Description);
+ 
             grid.CellClick += ScannerGrid_CellClick;
 
             grid.RowPrePaint += (s, e) =>
@@ -426,9 +447,7 @@ namespace compiles_lab_1
 
             return grid;
         }
-
-
-
+ 
         private void TabMouseUp(object sender, MouseEventArgs e)
         {
             if (e.Button == MouseButtons.Right)
@@ -465,12 +484,7 @@ namespace compiles_lab_1
             doc.Button.BackColor = Color.LightGray;
             UpdateStatus();
         }
-
-
-
-
-
-
+ 
         private void OpenFile(object sender, EventArgs e)
         {
             if (!CanCreateNewDocument())
@@ -860,21 +874,20 @@ namespace compiles_lab_1
                 MessageBox.Show(Strings.Run, Strings.RunHead, MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 return;
             }
- 
 
-                string text = richTextBox1.Text;
+            string text = richTextBox1.Text;
 
-            var scan = Scanner.Analyze(text);
-            var errors = Parser.Analyze(scan);
+            var parseResult = Parser.Analyze(text);
 
-            FillParserErrors(errors);
-
+            FillParserErrors(parseResult);
 
             tabControlResults.SelectedIndex = 0;
+ 
+            UpdateResultTabIndicator(parseResult.Errors.Count);
+
         }
 
-
-        private void FillParserErrors(List<ParseError> errors)
+        private void FillParserErrors(ParseResult result)
         {
             if (currentDocument == null || currentDocument.ScannerGrid == null)
                 return;
@@ -882,21 +895,23 @@ namespace compiles_lab_1
             var grid = currentDocument.ScannerGrid;
             grid.Rows.Clear();
 
-            foreach (var err in errors)
+            foreach (var err in result.Errors)
             {
                 int row = grid.Rows.Add(
                     err.Fragment,
-                    $"строка {err.Line}, {err.StartColumn}-{err.EndColumn}",
+                    $"{Strings.LineLowered} {err.Line}, {err.StartColumn}-{err.EndColumn}",
                     err.Message
                 );
 
-                grid.Rows[row].Tag = err; 
+                grid.Rows[row].Tag = err;
             }
- 
+
             tabPageResults.Controls.Clear();
             tabPageResults.Controls.Add(grid);
             tabControlResults.SelectedIndex = 0;
         }
+
+
 
 
 
@@ -914,12 +929,10 @@ namespace compiles_lab_1
             richTextBox1.SelectionStart = targetIndex;
             richTextBox1.ScrollToCaret();
 
-
             richTextBox1.Focus();
             richTextBox1.SelectionStart = targetIndex;
             richTextBox1.SelectionLength = Math.Max(1, err.EndColumn - err.StartColumn + 1);
         }
-
 
 
         private int GetCharIndexFromLineColumn(int line, int column)
@@ -927,13 +940,12 @@ namespace compiles_lab_1
             int index = 0;
 
             for (int i = 0; i < line - 1; i++)
-                index += richTextBox1.Lines[i].Length + 1;  
+                index += richTextBox1.Lines[i].Length + 1;
 
             index += column - 1;
-
             return index;
         }
-
+ 
         private void tabControlResults_SelectedIndexChanged(object sender, EventArgs e)
         {
             if (currentDocument != null)
@@ -972,6 +984,25 @@ namespace compiles_lab_1
                 }
             }
         }
+
+        private void UpdateResultTabIndicator(int errorCount)
+        {
+            if (errorCount == 0)
+            {
+                tabPageResults.ImageIndex = 0; 
+                tabPageResults.Text = $"{Strings.Result} Ч {Strings.Nomistakes}";
+            }
+            else
+            {
+                tabPageResults.ImageIndex = 1;  
+
+                string word = errorCount == 1 ? Strings.Mistake1 :
+                              errorCount < 5 ? Strings.Mistake2 : Strings.Mistake3;
+
+                tabPageResults.Text = $"{Strings.Result} Ч {errorCount} {word}";
+            }
+        }
+
 
     }
 }

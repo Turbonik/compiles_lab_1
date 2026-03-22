@@ -506,6 +506,8 @@ namespace compiles_lab_1
         }
         #endregion
 
+        private ImageList resultIcons;
+
         private MenuStrip menuStrip1;
         private ToolStripMenuItem fileMenu;
         private ToolStripMenuItem editMenu;

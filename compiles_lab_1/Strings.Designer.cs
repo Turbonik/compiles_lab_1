@@ -115,6 +115,15 @@ namespace compiles_lab_1 {
         }
         
         /// <summary>
+        ///   Ищет локализованную строку, похожую на Описание.
+        /// </summary>
+        internal static string Description {
+            get {
+                return ResourceManager.GetString("Description", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Ищет локализованную строку, похожую на конец оператора.
         /// </summary>
         internal static string EndOperator {
@@ -169,11 +178,56 @@ namespace compiles_lab_1 {
         }
         
         /// <summary>
+        ///   Ищет локализованную строку, похожую на Ожидался идентификатор.
+        /// </summary>
+        internal static string Expid {
+            get {
+                return ResourceManager.GetString("Expid", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Ищет локализованную строку, похожую на Ожидалось ключевое слово.
+        /// </summary>
+        internal static string Expkey {
+            get {
+                return ResourceManager.GetString("Expkey", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Ищет локализованную строку, похожую на Ожидалось число.
+        /// </summary>
+        internal static string Expnum {
+            get {
+                return ResourceManager.GetString("Expnum", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Ищет локализованную строку, похожую на Ожидался символ.
+        /// </summary>
+        internal static string Expsymb {
+            get {
+                return ResourceManager.GetString("Expsymb", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Ищет локализованную строку, похожую на идентификатор.
         /// </summary>
         internal static string Identifier {
             get {
                 return ResourceManager.GetString("Identifier", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Ищет локализованную строку, похожую на Неверный фрагмент.
+        /// </summary>
+        internal static string Incfrag {
+            get {
+                return ResourceManager.GetString("Incfrag", resourceCulture);
             }
         }
         
@@ -259,11 +313,56 @@ namespace compiles_lab_1 {
         }
         
         /// <summary>
+        ///   Ищет локализованную строку, похожую на ошибка.
+        /// </summary>
+        internal static string Mistake1 {
+            get {
+                return ResourceManager.GetString("Mistake1", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Ищет локализованную строку, похожую на ошибки.
+        /// </summary>
+        internal static string Mistake2 {
+            get {
+                return ResourceManager.GetString("Mistake2", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Ищет локализованную строку, похожую на ошибок.
+        /// </summary>
+        internal static string Mistake3 {
+            get {
+                return ResourceManager.GetString("Mistake3", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Ищет локализованную строку, похожую на Новый документ.
         /// </summary>
         internal static string NewDocument {
             get {
                 return ResourceManager.GetString("NewDocument", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Ищет локализованную строку, похожую на ошибок нет.
+        /// </summary>
+        internal static string Nomistakes {
+            get {
+                return ResourceManager.GetString("Nomistakes", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Ищет локализованную строку, похожую на Результат.
+        /// </summary>
+        internal static string Result {
+            get {
+                return ResourceManager.GetString("Result", resourceCulture);
             }
         }
         
