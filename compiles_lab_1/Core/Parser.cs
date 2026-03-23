@@ -118,7 +118,6 @@ namespace compiles_lab_1.Core
 
                     ParsePhase.ExpectVal =>
                         code is LexemeCode.KeywordVal
-                                or LexemeCode.KeywordConst
                                 or LexemeCode.KeywordInt
                                 or LexemeCode.Semicolon,
  
