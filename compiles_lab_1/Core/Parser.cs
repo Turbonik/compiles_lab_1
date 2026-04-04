@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace compiles_lab_1.Core
 {
@@ -40,6 +41,66 @@ namespace compiles_lab_1.Core
         static string MsgId => $"{Strings.Expid}";
         static string MsgSemi => $"{Strings.Expsymb} ';'";
 
+        private static bool IsValidUnsigned(Lexeme lex)
+        {
+            return lex.Text == "0" || (lex.Text.Length > 0 && lex.Text[0] != '0' && lex.Text.All(char.IsDigit));
+        }
+
+        private static bool IsValidSigned(Lexeme lex)
+        {
+            return lex.Text.Length > 0 && lex.Text[0] != '0' && lex.Text.All(char.IsDigit);
+        }
+
+        private static int CheckMatch(IReadOnlyList<Lexeme> tokens, int index, ParsePhase phase)
+        {
+            if (index >= tokens.Count) return 0;
+            var t = tokens[index];
+
+            switch (phase)
+            {
+                case ParsePhase.ExpectStart:
+                    return t.Code == LexemeCode.KeywordConst ? 1 : 0;
+                case ParsePhase.ExpectVal:
+                    return t.Code == LexemeCode.KeywordVal ? 1 : 0;
+                case ParsePhase.ExpectId:
+                    return (t.Code == LexemeCode.Identifier && t.Text != "val" && t.Text != "const") ? 1 : 0;
+                case ParsePhase.ExpectColon:
+                    return t.Code == LexemeCode.Colon ? 1 : 0;
+                case ParsePhase.ExpectIntKeyword:
+                    return t.Code == LexemeCode.KeywordInt ? 1 : 0;
+                case ParsePhase.ExpectAssign:
+                    return t.Code == LexemeCode.Assign ? 1 : 0;
+                case ParsePhase.ExpectNumber:
+                    if (t.Code == LexemeCode.Integer && IsValidUnsigned(t)) return 1;
+                    if (t.Code == LexemeCode.Minus && index + 1 < tokens.Count)
+                    {
+                        var t2 = tokens[index + 1];
+                        if (t2.Code == LexemeCode.Integer && IsValidSigned(t2)) return 2;
+                    }
+                    return 0;
+                case ParsePhase.Done:
+                    return t.Code == LexemeCode.Semicolon ? 1 : 0;
+                default:
+                    return 0;
+            }
+        }
+
+        private static string GetExpectedMessage(ParsePhase phase)
+        {
+            return phase switch
+            {
+                ParsePhase.ExpectStart => MsgConst,
+                ParsePhase.ExpectVal => MsgVal,
+                ParsePhase.ExpectId => MsgId,
+                ParsePhase.ExpectColon => MsgColon,
+                ParsePhase.ExpectIntKeyword => MsgInt,
+                ParsePhase.ExpectAssign => MsgAssign,
+                ParsePhase.ExpectNumber => MsgNumber,
+                ParsePhase.Done => MsgSemi,
+                _ => ""
+            };
+        }
+
         public static ParseResult Analyze(string source)
         {
             var scan = Scanner.Analyze(source);
@@ -49,367 +110,216 @@ namespace compiles_lab_1.Core
             int i = 0;
             ParsePhase phase = ParsePhase.ExpectStart;
 
-            Lexeme Cur() => i < tokens.Count ? tokens[i] : null;
-            void Adv() { if (i < tokens.Count) i++; }
-
-            void AddBlockError(string msg, string fragment, Lexeme first, Lexeme last)
+            while (i < tokens.Count)
             {
-                result.Errors.Add(new ParseError
+                var t = tokens[i];
+
+                if (phase == ParsePhase.ExpectStart &&
+                    t.Code == LexemeCode.Identifier &&
+                    (i + 1 >= tokens.Count || tokens[i + 1].Code == LexemeCode.Semicolon))
                 {
-                    Fragment = fragment,
-                    Message = msg,
-                    Line = first.Line,
-                    StartColumn = first.StartColumn,
-                    EndColumn = last.EndColumn
-                });
-            }
-
-            void AddPointError(string msg, Lexeme prev)
-            {
-                result.Errors.Add(new ParseError
-                {
-                    Fragment = "",
-                    Message = msg,
-                    Line = prev.Line,
-                    StartColumn = prev.EndColumn + 1,
-                    EndColumn = prev.EndColumn + 1
-                });
-            }
-
-            void AddEOFError(string msg, Lexeme last)
-            {
-                result.Errors.Add(new ParseError
-                {
-                    Fragment = "",
-                    Message = msg,
-                    Line = last.Line,
-                    StartColumn = last.EndColumn + 1,
-                    EndColumn = last.EndColumn + 1
-                });
-            }
-
-            bool ValidUnsigned(Lexeme lex)
-            {
-                var s = lex.Text;
-                if (s == "0") return true;
-                if (s.Length > 1 && s[0] == '0') return false;
-                foreach (var c in s)
-                    if (c < '0' || c > '9') return false;
-                return true;
-            }
-
-            bool ValidSigned(Lexeme lex)
-            {
-                var s = lex.Text;
-                if (s.Length == 0) return false;
-                if (s[0] == '0') return false;
-                foreach (var c in s)
-                    if (c < '0' || c > '9') return false;
-                return true;
-            }
- 
-            bool IsRecoveryPoint(LexemeCode code)
-            {
-                return phase switch
-                {
-                    ParsePhase.ExpectStart =>
-                        code is LexemeCode.KeywordConst,
- 
-
-                    ParsePhase.ExpectVal =>
-                        code is LexemeCode.KeywordVal
-                                or LexemeCode.KeywordInt
-                                or LexemeCode.Semicolon,
- 
-                    ParsePhase.ExpectId =>
-                        code is LexemeCode.Semicolon or
-                            LexemeCode.KeywordInt,
-
-                    ParsePhase.ExpectColon =>
-                        code is LexemeCode.KeywordInt
-                               or LexemeCode.Semicolon,
-
-                    ParsePhase.ExpectIntKeyword =>
-                        code is LexemeCode.KeywordInt
-                               or LexemeCode.Semicolon,
-
-                    ParsePhase.ExpectAssign =>
-                        code is LexemeCode.Assign
-                               or LexemeCode.Semicolon,
-
-                    ParsePhase.ExpectNumber =>
-                        code is LexemeCode.Semicolon,
-
-                    ParsePhase.Done =>
-                        code is LexemeCode.Semicolon,
-
-                    _ => false
-                };
-            }
- 
-            void ConsumeGarbage(string msg)
-            {
-                int startIndex = i;
-                var first = tokens[startIndex];
-                int k = startIndex + 1;
-
-                while (k < tokens.Count &&
-                       !IsRecoveryPoint(tokens[k].Code) &&
-                       tokens[k].Line == first.Line)   
-                {
-                    k++;
-                }
-
-                int endIndex = k - 1;
-                var last = tokens[endIndex];
-
-                string fragment = "";
-                for (int j = startIndex; j <= endIndex; j++)
-                    fragment += tokens[j].Text;
-
-                AddBlockError(msg, fragment, first, last);
-                i = k;
-
-                if (i >= tokens.Count)
-                    phase = ParsePhase.ExpectStart;
-            }
-
-            void AfterRecovery(ref ParsePhase phase)
-            {
-                var t = Cur();
-                if (t == null) return;
-
-                switch (t.Code)
-                {
-                    case LexemeCode.KeywordConst:
-                        Adv();
-                        phase = ParsePhase.ExpectVal;
-                        break;
-
-                    case LexemeCode.KeywordVal:
-                        Adv();
-                        phase = ParsePhase.ExpectId;
-                        break;
-
-                    case LexemeCode.KeywordInt:
-                        Adv();
-                        phase = ParsePhase.ExpectAssign;
-                        break;
-
-                    case LexemeCode.Semicolon:
-                        Adv();
-                        phase = ParsePhase.ExpectStart;
-                        break;
-                }
-            }
-
- 
-            while (true)
-            {
-                var t = Cur();
-
-                if (t == null)
-                {
-                    if (tokens.Count > 0 && phase != ParsePhase.ExpectStart)
+                    result.Errors.Add(new ParseError
                     {
-                        var last = tokens[^1];
-                        switch (phase)
-                        {
-                            case ParsePhase.ExpectVal: AddEOFError(MsgVal, last); break;
-                            case ParsePhase.ExpectId: AddEOFError(MsgId, last); break;
-                            case ParsePhase.ExpectColon: AddEOFError(MsgColon, last); break;
-                            case ParsePhase.ExpectIntKeyword: AddEOFError(MsgInt, last); break;
-                            case ParsePhase.ExpectAssign: AddEOFError(MsgAssign, last); break;
-                            case ParsePhase.ExpectNumber: AddEOFError(MsgNumber, last); break;
-                            case ParsePhase.Done: AddEOFError(MsgSemi, last); break;
-                        }
-                    }
-                    break;
+                        Fragment = t.Text,
+                        Message = MsgConst,
+                        Line = t.Line,
+                        StartColumn = t.StartColumn,
+                        EndColumn = t.EndColumn
+                    });
+
+                    int line = t.Line;
+                    while (i < tokens.Count && tokens[i].Line == line && tokens[i].Code != LexemeCode.Semicolon)
+                        i++;
+
+                    if (i < tokens.Count && tokens[i].Code == LexemeCode.Semicolon)
+                        i++;
+
+                    phase = ParsePhase.ExpectStart;
+                    continue;
+                }
+
+                if (phase == ParsePhase.ExpectStart && t.Code == LexemeCode.Semicolon)
+                {
+                    int start = i;
+                    int line = t.Line;
+                    while (i < tokens.Count && tokens[i].Code == LexemeCode.Semicolon && tokens[i].Line == line)
+                        i++;
+                    var first = tokens[start];
+                    var last = tokens[i - 1];
+                    string fragment = string.Concat(tokens.Skip(start).Take(i - start).Select(x => x.Text));
+                    result.Errors.Add(new ParseError
+                    {
+                        Fragment = fragment,
+                        Message = MsgConst,
+                        Line = line,
+                        StartColumn = first.StartColumn,
+                        EndColumn = last.EndColumn
+                    });
+                    continue;
                 }
 
                 if (t.Code == LexemeCode.Error)
                 {
-                    AddBlockError(Strings.InvalidLexeme, t.Text, t, t);
-                    Adv();
+                    int start = i;
+                    int line = t.Line;
+                    var first = t;
+                    string fragment = t.Text;
+
+                    i++;
+                    while (i < tokens.Count && tokens[i].Code == LexemeCode.Error && tokens[i].Line == line)
+                    {
+                        fragment += tokens[i].Text;
+                        i++;
+                    }
+
+                    var last = tokens[i - 1];
+
+                    result.Errors.Add(new ParseError
+                    {
+                        Fragment = fragment,
+                        Message = Strings.InvalidLexeme,
+                        Line = line,
+                        StartColumn = first.StartColumn,
+                        EndColumn = last.EndColumn
+                    });
+
                     continue;
                 }
 
-                switch (phase)
+                int consumed = CheckMatch(tokens, i, phase);
+                if (consumed > 0)
                 {
-                    case ParsePhase.ExpectStart:
+                    i += consumed;
+                    phase = (phase == ParsePhase.Done) ? ParsePhase.ExpectStart : (ParsePhase)((int)phase + 1);
+                    continue;
+                }
 
-                        if (t.Code == LexemeCode.KeywordConst)
+                int startIndex = i;
+                int syncIndex = -1;
+                ParsePhase syncPhase = phase;
+
+                for (int j = i; j < tokens.Count; j++)
+                {
+                    if (phase == ParsePhase.ExpectAssign)
+                    {
+                        if (tokens[j].Code == LexemeCode.Integer && IsValidUnsigned(tokens[j]))
                         {
-                            Adv();
-                            phase = ParsePhase.ExpectVal;
+                            syncIndex = j;
+                            syncPhase = ParsePhase.ExpectNumber;
                             break;
                         }
 
-                        if (t.Code == LexemeCode.Semicolon)
+                        if (tokens[j].Code == LexemeCode.Minus &&
+                            j + 1 < tokens.Count &&
+                            tokens[j + 1].Code == LexemeCode.Integer &&
+                            IsValidSigned(tokens[j + 1]))
                         {
-                            Adv();
+                            syncIndex = j;
+                            syncPhase = ParsePhase.ExpectNumber;
                             break;
                         }
+                    }
 
-                        ConsumeGarbage(MsgConst);
-                        AfterRecovery(ref phase);
-                        break;
+                    for (int p = (int)phase; p <= (int)ParsePhase.Done; p++)
+                    {
+                        var ph = (ParsePhase)p;
+                        if (ph == ParsePhase.ExpectNumber)
+                            continue;
 
-                    case ParsePhase.ExpectVal:
-                        if (t.Code == LexemeCode.KeywordVal)
+                        if (CheckMatch(tokens, j, ph) > 0)
                         {
-                            Adv();
-                            phase = ParsePhase.ExpectId;
+                            syncIndex = j;
+                            syncPhase = ph;
                             break;
                         }
+                    }
 
-                        ConsumeGarbage(MsgVal);
-                        AfterRecovery(ref phase);
-                        break;
+                    if (syncIndex != -1) break;
+                }
 
-                    case ParsePhase.ExpectId:
+                string errorMsg = GetExpectedMessage(phase);
 
-                        if (t.Code == LexemeCode.Identifier &&
-                            t.Text != "val" &&
-                            t.Text != "const")
+                if (syncIndex != -1)
+                {
+                    if (syncIndex == startIndex)
+                    {
+                        var cur = tokens[startIndex];
+
+                        if (phase == ParsePhase.ExpectStart)
                         {
-                            Adv();
-                            phase = ParsePhase.ExpectColon;
-                            break;
-                        }
-
-                        ConsumeGarbage(MsgId);
-                        AfterRecovery(ref phase);
-                        break;
-
-                    case ParsePhase.ExpectColon:
-
-                        if (t.Code == LexemeCode.Colon)
-                        {
-                            Adv();
-                            phase = ParsePhase.ExpectIntKeyword;
-                            break;
-                        }
-
-                        if (t.Code == LexemeCode.Semicolon)
-                        {
-                            var prev = tokens[i - 1];
-                            AddPointError(MsgColon, prev);
-                            Adv();
-                            phase = ParsePhase.ExpectStart;
-                            break;
-                        }
-
-                        ConsumeGarbage(MsgColon);
-                        AfterRecovery(ref phase);
-                        break;
-
-                    case ParsePhase.ExpectIntKeyword:
-                        if (t.Code == LexemeCode.KeywordInt)
-                        {
-                            Adv();
-                            phase = ParsePhase.ExpectAssign;
-                            break;
-                        }
-
-                        if (t.Code == LexemeCode.Semicolon)
-                        {
-                            var prev = tokens[i - 1];
-                            AddPointError(MsgInt, prev);
-                            Adv();
-                            phase = ParsePhase.ExpectStart;
-                            break;
-                        }
-
-                        ConsumeGarbage(MsgInt);
-                        AfterRecovery(ref phase);
-                        break;
-
-                    case ParsePhase.ExpectAssign:
-                        if (t.Code == LexemeCode.Assign)
-                        {
-                            Adv();
-                            phase = ParsePhase.ExpectNumber;
-                            break;
-                        }
-
-                        if (t.Code == LexemeCode.Semicolon)
-                        {
-                            var prev = tokens[i - 1];
-                            AddPointError(MsgAssign, prev);
-                            Adv();
-                            phase = ParsePhase.ExpectStart;
-                            break;
-                        }
-
-                        ConsumeGarbage(MsgAssign);
-                        AfterRecovery(ref phase);
-                        break;
-
-                    case ParsePhase.ExpectNumber:
-
-                        if (t.Code == LexemeCode.Integer)
-                        {
-                            if (!ValidUnsigned(t))
+                            result.Errors.Add(new ParseError
                             {
-                                ConsumeGarbage(MsgNumber);
-                                AfterRecovery(ref phase);
-                                break;
-                            }
-
-                            Adv();
-                            phase = ParsePhase.Done;
-                            break;
+                                Fragment = "",
+                                Message = errorMsg,
+                                Line = cur.Line,
+                                StartColumn = cur.StartColumn,
+                                EndColumn = cur.StartColumn
+                            });
                         }
-
-                        if (t.Code == LexemeCode.Minus)
+                        else
                         {
-                            Adv();
-                            var t2 = Cur();
-
-                            if (t2 != null && t2.Code == LexemeCode.Integer)
+                            var prev = startIndex > 0 ? tokens[startIndex - 1] : cur;
+                            result.Errors.Add(new ParseError
                             {
-                                if (!ValidSigned(t2))
-                                {
-                                    ConsumeGarbage(MsgNumber);
-                                    AfterRecovery(ref phase);
-                                    break;
-                                }
-
-                                Adv();
-                                phase = ParsePhase.Done;
-                                break;
-                            }
-
-                            ConsumeGarbage(MsgNumber);
-                            AfterRecovery(ref phase);
-                            break;
+                                Fragment = "",
+                                Message = errorMsg,
+                                Line = prev.Line,
+                                StartColumn = prev.EndColumn + 1,
+                                EndColumn = prev.EndColumn + 1
+                            });
                         }
-
-                        if (t.Code == LexemeCode.Semicolon)
+                    }
+                    else
+                    {
+                        var firstSkipped = tokens[startIndex];
+                        var lastSkipped = tokens[syncIndex - 1];
+                        string fragment = string.Join("", tokens.GetRange(startIndex, syncIndex - startIndex).Select(x => x.Text));
+                        result.Errors.Add(new ParseError
                         {
-                            var prev = tokens[i - 1];
-                            AddPointError(MsgNumber, prev);
-                            Adv();
-                            phase = ParsePhase.ExpectStart;
-                            break;
-                        }
+                            Fragment = fragment,
+                            Message = errorMsg,
+                            Line = firstSkipped.Line,
+                            StartColumn = firstSkipped.StartColumn,
+                            EndColumn = lastSkipped.EndColumn
+                        });
+                    }
 
-                        ConsumeGarbage(MsgNumber);
-                        AfterRecovery(ref phase);
-                        break;
+                    i = syncIndex;
+                    phase = syncPhase;
+                }
+                else
+                {
+                    var firstSkipped = tokens[startIndex];
+                    var lastSkipped = tokens[tokens.Count - 1];
+                    string fragment = string.Join("", tokens.GetRange(startIndex, tokens.Count - startIndex).Select(x => x.Text));
+                    result.Errors.Add(new ParseError
+                    {
+                        Fragment = fragment,
+                        Message = errorMsg,
+                        Line = firstSkipped.Line,
+                        StartColumn = firstSkipped.StartColumn,
+                        EndColumn = lastSkipped.EndColumn
+                    });
+                    i = tokens.Count;
+                }
+            }
 
-                    case ParsePhase.Done:
-                        if (t.Code == LexemeCode.Semicolon)
-                        {
-                            Adv();
-                            phase = ParsePhase.ExpectStart;
-                            break;
-                        }
+            if (phase != ParsePhase.ExpectStart && tokens.Count > 0)
+            {
+                var last = tokens[tokens.Count - 1];
+                var lastErr = result.Errors.LastOrDefault();
+                var msg = GetExpectedMessage(phase);
 
-                        ConsumeGarbage(MsgSemi);
-                        AfterRecovery(ref phase);
-                        break;
+                if (lastErr == null || lastErr.Message != msg || lastErr.Line != last.Line)
+                {
+                    result.Errors.Add(new ParseError
+                    {
+                        Fragment = "",
+                        Message = msg,
+                        Line = last.Line,
+                        StartColumn = last.EndColumn + 1,
+                        EndColumn = last.EndColumn + 1
+                    });
                 }
             }
 
