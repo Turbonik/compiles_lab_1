@@ -193,10 +193,15 @@ namespace compiles_lab_1.Core
                     phase = (phase == ParsePhase.Done) ? ParsePhase.ExpectStart : (ParsePhase)((int)phase + 1);
                     continue;
                 }
+   
+         
 
                 int startIndex = i;
                 int syncIndex = -1;
                 ParsePhase syncPhase = phase;
+ 
+                bool hasFutureConst = tokens.Skip(i + 1).Any(x => x.Code == LexemeCode.KeywordConst);
+                bool hasFutureVal = tokens.Skip(i + 1).Any(x => x.Code == LexemeCode.KeywordVal);
 
                 for (int j = i; j < tokens.Count; j++)
                 {
@@ -226,6 +231,18 @@ namespace compiles_lab_1.Core
                         if (ph == ParsePhase.ExpectNumber)
                             continue;
 
+                        if (phase == ParsePhase.ExpectStart &&
+                                (hasFutureConst || hasFutureVal) &&
+                                ph == ParsePhase.ExpectId)
+                            continue;
+
+
+                        if (phase == ParsePhase.ExpectVal &&
+                            hasFutureVal &&
+                            ph == ParsePhase.ExpectId)
+                            continue;
+
+
                         if (CheckMatch(tokens, j, ph) > 0)
                         {
                             syncIndex = j;
@@ -235,6 +252,42 @@ namespace compiles_lab_1.Core
                     }
 
                     if (syncIndex != -1) break;
+                }
+
+                if (phase != ParsePhase.ExpectId &&
+            i + 1 < tokens.Count &&
+            CheckMatch(tokens, i + 1, phase) > 0)
+                {
+                    int line = tokens[i].Line;
+                    var first = tokens[i];
+                    string fragment = first.Text;
+
+                    int k = i + 1;
+                    while (k < tokens.Count &&
+                      CheckMatch(tokens, k, phase) == 0 &&
+                      tokens[k].Code != LexemeCode.Semicolon &&
+                      !(phase == ParsePhase.ExpectStart && tokens[k].Code == LexemeCode.KeywordConst) &&
+                      !(phase == ParsePhase.ExpectVal && tokens[k].Code == LexemeCode.KeywordVal))
+                    {
+                        fragment += tokens[k].Text;
+                        k++;
+                    }
+
+
+                    result.Errors.Add(new ParseError
+                    {
+                        Fragment = fragment,
+                        Message = GetExpectedMessage(phase),
+                        Line = line,
+                        StartColumn = first.StartColumn,
+                        EndColumn = tokens[k - 1].EndColumn
+                    });
+
+                    int consumedExpected = CheckMatch(tokens, i + 1, phase);
+                    i = i + 1 + consumedExpected;
+                    phase = (phase == ParsePhase.Done) ? ParsePhase.ExpectStart : (ParsePhase)((int)phase + 1);
+                    continue;
+
                 }
 
                 string errorMsg = GetExpectedMessage(phase);
